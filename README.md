@@ -1,5 +1,9 @@
 # treevim
 
+<p align="center">
+  <img src="assets/treevim.jpg" alt="treevim" width="500">
+</p>
+
 A standalone, Vim-inspired TUI for navigating and live editing of
 [trees data structures](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>).
 Build extensions in TypeScript/JS to work with different kinds of trees.
