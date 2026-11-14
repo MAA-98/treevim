@@ -16,7 +16,6 @@
     "test:watch": "vitest",
     "release:prepare": "pnpm build && node scripts/bundle-cli.mjs && node scripts/assemble-release.mjs",
     "login": "pnpm login --registry https://registry.npmjs.org/",
-    "publish:cli": "pnpm build && pnpm --filter dirvi-lib publish --access public && pnpm --filter dirvi-apis publish --access public && pnpm --filter dirvi-app publish --access public && pnpm --filter @mak-98/dirvi-cli publish --access public",
     "deps": "depcruise packages plugins",
     "deps:check": "depcruise --validate .dependency-cruiser.cjs packages plugins",
     "deps:svg": "depcruise --config .dependency-cruiser.cjs packages plugins --output-type dot | dot -T svg > dependency-graph.svg",
