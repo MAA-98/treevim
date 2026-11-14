@@ -44,28 +44,26 @@ process.on('exit', restoreTerminal);
 // Resolving Paths
 // =============================================================================
 /**
- * The base directory for user-maintained dirvi configuration.
+ * The base directory for user-maintained treevim configuration.
  *
  * Prefer the XDG override when supplied, otherwise keep configuration in the
  * conventional dot-config location:
  *
- *   ~/.config/dirvi/init.mjs
+ *   ~/.config/treevim/init.mjs
  *
  * This is intentionally separate from application data such as saved views.
  */
-const dirviConfigDirectory = join(getXdgConfigHome(), 'dirvi');
-/** Executable ESM startup script evaluated during dirvi initialization. */
-const initPath = join(dirviConfigDirectory, 'init.mjs');
-const dirviDataDirectory = join(getXdgDataHome(), 'dirvi');
-const packagesDirectory = join(dirviDataDirectory, 'site', 'pack');
+const treevimConfigDirectory = join(getXdgConfigHome(), 'treevim');
+/** Executable ESM startup script evaluated during treevim initialization. */
+const initPath = join(treevimConfigDirectory, 'init.mjs');
 
 // =============================================================================
 // Commands
 // =============================================================================
 program
-  .name('dirvi')
+  .name('treevim')
   .description('View and manage trees.')
-  .version('0.11.0-beta.24')
+  .version('0.1.0-beta.1')
   .helpOption('--help')
   .option('-a, --app <id>', 'App name to open at startup.')
   .option('-i, --input <value>', 'Input for the app at startup.')
@@ -113,11 +111,11 @@ try {
 } catch (error: unknown) {
   const message =
     error instanceof Error
-      ? process.env.DIRVI_DEBUG === '1'
+      ? process.env.TREEVIM_DEBUG === '1'
         ? (error.stack ?? error.message)
         : error.message
       : String(error);
 
-  process.stderr.write(`dirvi error: ${message}\n`);
+  process.stderr.write(`treevim error: ${message}\n`);
   process.exitCode = 1;
 }

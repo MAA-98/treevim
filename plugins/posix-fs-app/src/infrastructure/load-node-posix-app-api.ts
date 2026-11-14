@@ -3,7 +3,7 @@ import { watch, type FSWatcher } from 'node:fs';
 // ---*--- App Data ---*---
 
 // Paths for app data:
-// const environmentPaths = envPaths('dirvi');
+// const environmentPaths = envPaths('treevim');
 // const posixAppDataDirectory = join(environmentPaths.data, 'apps', 'posix');
 // const posixAppViewsDirectory = join(posixAppDataDirectory, 'views');
 //

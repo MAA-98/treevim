@@ -27,21 +27,21 @@ While evaluating the module, `dirvi` temporarily exposes a narrow
 configuration facade at:
 
 ```js
-globalThis.dirvi;
+globalThis.treevim;
 ```
 
 and can also be accessed with:
 
 ```js
-dirvi;
+treevim;
 ```
 
 For example, an initialization script may change shared UI options:
 
 ```js
-dirvi.options.set({
-  indentSize: 4,
-  firstIndent: '│ ',
+treevim.options.set({
+    indentSize: 4,
+    firstIndent: '│ ',
 });
 ```
 

@@ -45,9 +45,9 @@ export async function createInitialization(
   const runtime = createInitRuntime();
   // Preserve an existing property descriptor so this loader does not leak its
   // startup API into the process after init.mjs evaluation completes.
-  const previousDirvi = Object.getOwnPropertyDescriptor(globalThis, 'dirvi');
+  const previousTreevim = Object.getOwnPropertyDescriptor(globalThis, 'treevim');
 
-  Object.defineProperty(globalThis, 'dirvi', {
+  Object.defineProperty(globalThis, 'treevim', {
     configurable: true,
     value: runtime.api,
     // init.mjs may call the global `dirvi` API but cannot replace it.
@@ -69,7 +69,7 @@ export async function createInitialization(
       `Unable to evaluate configuration at ${initPath}: ${message}`,
     );
   } finally {
-    restoreGlobalDirvi(previousDirvi);
+    restoreGlobalTreevim(previousTreevim);
   }
 }
 
@@ -81,15 +81,15 @@ export async function createInitialization(
  * setter, writability, configurability, or value. If no property existed,
  * remove the temporary injected API entirely.
  */
-function restoreGlobalDirvi(
-  previousDirvi: PropertyDescriptor | undefined,
+function restoreGlobalTreevim(
+  previousTreevim: PropertyDescriptor | undefined,
 ): void {
-  if (previousDirvi === undefined) {
-    delete (globalThis as { dirvi?: PublicInitApi }).dirvi;
+  if (previousTreevim === undefined) {
+    delete (globalThis as { treevim?: PublicInitApi }).treevim;
     return;
   }
 
-  Object.defineProperty(globalThis, 'dirvi', previousDirvi);
+  Object.defineProperty(globalThis, 'treevim', previousTreevim);
 }
 
 function isFileNotFoundError(error: unknown): error is NodeJS.ErrnoException {

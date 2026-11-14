@@ -1,5 +1,4 @@
 import type { Cursor, CursorMethods, FoldCursor } from '../cursor.js';
-import type { SerializableKey } from 'dirvi-apis';
 import type {
   NavBranch,
   NavEntry,

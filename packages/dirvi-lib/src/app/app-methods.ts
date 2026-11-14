@@ -1,6 +1,6 @@
 import type { NavMethods, StateMethods } from '../state-and-nav/index.js';
 import { TreeNode } from '../state-and-nav/index.js';
-import { NodePresenter } from 'dirvi-apis';
+import type { NodePresenter } from 'dirvi-apis';
 
 /**
  * Application-specific tree operations.

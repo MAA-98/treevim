@@ -1,4 +1,4 @@
-# dirvi
+# treevim
 
 A standalone, Vim-inspired TUI for navigating and live editing of
 [trees data structures](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>).
@@ -18,11 +18,11 @@ in TypeScript. Easily write commands and plugins with the API documentation.
 - Extensible: `init.mjs` **config file runs on startup, allowing you to use any JS/TS package for
   commands/apps/themes/control, etc.** Basic security: initialization is fixed after startup.
 - Good clean code. Good documentation for users and plugin authors.
-- Two examples of `dirvi` apps: file system editor and XML editor.
+- Two examples of `treevim` apps: file system editor and XML editor.
 
 ## Installation
 
-Install `dirvi` globally with npm:
+Install `treevim` globally with npm:
 
 ```sh
 npm install -g @mak-98/dirvi-cli@latest
@@ -30,34 +30,40 @@ npm install -g @mak-98/dirvi-cli@latest
 
 Requirements:
 
-- Node.js (>= v.22)
+- Node.js 22 or later
+- npm
+
+Install the beta globally:
+
+```sh
+npm install -g treevim@beta
+```
+
+Check the installation:
+
+```sh
+treevim --version
+```
 
 ## Usage
 
-Add a starting `init.mjs`, for example, a dirvi directory app with:
+Add a starting `init.mjs`, for example, see `examples/`.
 
-```js
-dirvi.app.register({
-  id: 'fs',
-  packRef: {
-    source: 'npm',
-    packageName: '@mak-98/posix-fs-dirvi-app',
-    version: '0.11.0-beta.13',
-  },
-});
-```
-
-Launch `dirvi` from the directory you want to browse:
+Run treevim with:
 
 ```sh
-dirvi
+treevim
 ```
 
-It will install the npm package on first load and open the app.
+For command-line options:
+
+```sh
+treevim --help
+```
 
 ## Controls
 
-`dirvi` has two modes:
+`treevim` has two modes:
 
 - **Normal mode** is used for navigating and interacting with the directory tree.
 - **Command-line mode** is used to enter commands beginning with `:`.
@@ -66,7 +72,7 @@ The current mode and pending input are shown in the status bar at the bottom of 
 
 ### Normal mode
 
-Normal mode is the default mode when `dirvi` starts.
+Normal mode is the default mode when `treevim` starts.
 
 #### Single Key
 
@@ -111,7 +117,7 @@ Currently supported commands:
 
 | Command                | Action                                            |
 | ---------------------- | ------------------------------------------------- |
-| `:q`                   | Quit `dirvi`                                      |
+| `:q`                   | Quit `treevim`                                    |
 | `:fold list`           | List fold trees in the current view               |
 | `:fold create <name>`  | Create a named fold tree                          |
 | `:fold delete <name>`  | Delete a named fold tree                          |
@@ -205,9 +211,7 @@ Fold state is independent of the materialized directory buffer:
 
 I use the directory app for navigating project files, with folds now becoming
 the indispensable way for me to quickly view files relevant to a specific part
-of a project. I use the XML editor for controlling LLM context. I plan to create
-a process deamon dirvi app in the future, to be able to easily control a tree of
-processes.
+of a project. I use the XML editor for controlling LLM context.
 
 - Why make it a separate app instead of a Vim/Neovim plugin?
 
@@ -231,7 +235,9 @@ from LLMs may be taken into account. Unit tests may be written by LLMs without e
 to implementations, property tests are usually handmade with LLM assistance. Contributions
 are expected to use a similar workflow.
 
-## Licensing
+## License
 
-- The terminal application (`packages/dirvi-cli`) is licensed under the GPLv3.
-- The internal library (`packages/dirvi-lib`) is licensed under the LGPLv3.
+treevim is licensed under the GNU General Public License, version 3 or, at your
+option, any later version (`GPL-3.0-or-later`). See [LICENSE](LICENSE).
+
+Third-party dependencies retain their respective licenses.

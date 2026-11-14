@@ -1,4 +1,4 @@
-import { DirviApi } from 'dirvi-apis';
+import type { DirviApi } from 'dirvi-apis';
 
 /**
  * A command registered by init.mjs and invoked through Ex mode.
