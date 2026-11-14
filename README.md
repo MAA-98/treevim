@@ -1,24 +1,24 @@
 # dirvi
 
-TUI for navigating and editing [trees (the abstract data type)](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>),
-with concrete implementations provided through a small API by plugins called _dirvi apps_.
+A standalone, Vim-inspired TUI for navigating and live editing of
+[trees data structures](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>).
+Build extensions in TypeScript/JS to work with different kinds of trees.
 
-Provides a similar extensible editing environment to Vim/Neovim for trees, rather than text buffers.
+Provides a similar extensible editing environment as Vim/Neovim, but for trees 
+instead of text buffers. Similar to `neo-tree`, but standalone with the API written 
+in TypeScript. Easily write commands and plugins with the API documentation.
 
 > Current Status:
 > In beta, breaking API changes common.
 
 ## Goals
 
-- Modal editing adapted from Vim for any abstract trees.
+- Modal editing adapted from Vim for any abstract trees, ordered and unordered.
 - Focused: **Be really good at one thing: interacting with trees.**
 - Extensible: `init.mjs` **config file runs on startup, allowing you to use any JS/TS package for
-  commands/apps/themes/control, etc.** Includes basic security: initialization is fixed after startup.
+  commands/apps/themes/control, etc.** Basic security: initialization is fixed after startup.
 - Good clean code. Good documentation for users and plugin authors.
 - Two examples of `dirvi` apps: file system editor and XML editor.
-
-Answering the question:
-https://vi.stackexchange.com/questions/29417/how-can-i-edit-trees-in-vim
 
 ## Installation
 
