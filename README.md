@@ -25,7 +25,7 @@ in TypeScript. Easily write commands and plugins with the API documentation.
 Install `treevim` globally with npm:
 
 ```sh
-npm install -g @mak-98/dirvi-cli@latest
+npm install -g @mak-98/treevim@latest
 ```
 
 Requirements:
@@ -33,21 +33,9 @@ Requirements:
 - Node.js 22 or later
 - npm
 
-Install the beta globally:
-
-```sh
-npm install -g treevim@beta
-```
-
-Check the installation:
-
-```sh
-treevim --version
-```
-
 ## Usage
 
-Add a starting `init.mjs`, for example, see `examples/`.
+Add a starting `init.mjs`, for examples see `examples/`.
 
 Run treevim with:
 
