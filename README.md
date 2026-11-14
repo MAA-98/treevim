@@ -4,8 +4,8 @@ A standalone, Vim-inspired TUI for navigating and live editing of
 [trees data structures](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>).
 Build extensions in TypeScript/JS to work with different kinds of trees.
 
-Provides a similar extensible editing environment as Vim/Neovim, but for trees 
-instead of text buffers. Similar to `neo-tree`, but standalone with the API written 
+Provides a similar extensible editing environment as Vim/Neovim, but for trees
+instead of text buffers. Similar to `neo-tree`, but standalone with the API written
 in TypeScript. Easily write commands and plugins with the API documentation.
 
 > Current Status:
