@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/treevim.jpg" alt="treevim" width="1000">
+  <img src="assets/treevim-cropped.jpg" alt="treevim" width="1000">
 </p>
 
 A standalone, Vim-inspired TUI for navigating and live editing of
