@@ -65,7 +65,7 @@ const packagesDirectory = join(dirviDataDirectory, 'site', 'pack');
 program
   .name('dirvi')
   .description('View and manage trees.')
-  .version('0.11.0-beta.23')
+  .version('0.11.0-beta.24')
   .helpOption('--help')
   .option('-a, --app <id>', 'App name to open at startup.')
   .option('-i, --input <value>', 'Input for the app at startup.')
