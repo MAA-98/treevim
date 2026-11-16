@@ -1,6 +1,6 @@
 {
   "name": "treevim",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "A standalone Vim-inspired tree editor in the terminal.",
   "type": "module",
   "license": "GPL-3.0-or-later",
