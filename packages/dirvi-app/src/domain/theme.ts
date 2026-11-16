@@ -5,7 +5,6 @@ import type {
   LogicalColor,
   FgAndBgHlConfig,
   FgHlConfig,
-  OptionalFgHlConfig,
   Theme,
 } from 'dirvi-apis';
 
@@ -71,10 +70,6 @@ export const ForegroundHighlightConfigSchema = z.object({
   fg: ColorConfigSchema,
 }) satisfies z.ZodType<FgHlConfig>;
 
-export const OptionalForegroundHighlightConfigSchema = z.object({
-  fg: ColorConfigSchema.optional(),
-}) satisfies z.ZodType<OptionalFgHlConfig>;
-
 export const BackgroundHighlightConfigSchema = z.object({
   bg: ColorConfigSchema,
 }) satisfies z.ZodType<BgHlConfig>;
@@ -100,19 +95,7 @@ const lightGray: LogicalColor = {
   basic: 'gray',
 };
 
-const leaf: LogicalColor = {
-  hex: '#e5e5e5',
-  ansi256: 254,
-  basic: 'white',
-};
-
-const branch: LogicalColor = {
-  hex: '#2472c8',
-  ansi256: 26,
-  basic: 'blue',
-};
-
-const folded: LogicalColor = {
+const foldInfo: LogicalColor = {
   hex: '#808080',
   ansi256: 245,
   basic: 'gray',
@@ -122,6 +105,12 @@ const indentGuide: LogicalColor = {
   hex: '#808080',
   ansi256: 245,
   basic: 'gray',
+};
+
+const activeIndentGuide: LogicalColor = {
+  hex: '#2472c8',
+  ansi256: 26,
+  basic: 'blue',
 };
 
 const cursorLine: LogicalColor = {
@@ -144,16 +133,14 @@ const error: LogicalColor = {
 
 const themeDefaults = {
   statusBar: {
-    command: { fg: black },
-    normal: { fg: black },
-    background: { bg: lightGray },
+    command: { fg: black, bg: lightGray },
+    normal: { fg: black, bg: lightGray },
   },
   tree: {
-    leaf: { fg: leaf },
-    branch: { fg: branch },
-    folded: { fg: folded },
+    foldInfo: { fg: foldInfo },
     cursorLine: { bg: cursorLine },
     indentGuide: { fg: indentGuide },
+    activeIndentGuide: { fg: activeIndentGuide },
   },
   feedbackBar: {
     message: {
@@ -178,33 +165,25 @@ const themeDefaults = {
 export const ThemeSchema = z.object({
   statusBar: z
     .object({
-      command: ForegroundHighlightConfigSchema.default(
+      command: ForegroundBackgroundHighlightConfigSchema.default(
         themeDefaults.statusBar.command,
       ),
-      normal: ForegroundHighlightConfigSchema.default(
+      normal: ForegroundBackgroundHighlightConfigSchema.default(
         themeDefaults.statusBar.normal,
-      ),
-      background: BackgroundHighlightConfigSchema.default(
-        themeDefaults.statusBar.background,
       ),
     })
     .default(themeDefaults.statusBar),
 
   tree: z
     .object({
-      leaf: ForegroundHighlightConfigSchema.default(themeDefaults.tree.leaf),
-      branch: ForegroundHighlightConfigSchema.default(
-        themeDefaults.tree.branch,
-      ),
-      folded: ForegroundHighlightConfigSchema.default(
-        themeDefaults.tree.folded,
+      foldInfo: ForegroundHighlightConfigSchema.default(
+        themeDefaults.tree.foldInfo,
       ),
       cursorLine: BackgroundHighlightConfigSchema.default(
         themeDefaults.tree.cursorLine,
       ),
-      indentGuide: OptionalForegroundHighlightConfigSchema.default(
-        themeDefaults.tree.indentGuide,
-      ),
+      indentGuide: ForegroundHighlightConfigSchema.exactOptional(),
+      activeIndentGuide: ForegroundHighlightConfigSchema.exactOptional(),
     })
     .default(themeDefaults.tree),
 

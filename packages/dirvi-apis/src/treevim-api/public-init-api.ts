@@ -3,23 +3,19 @@ import { DirviApi } from './dirvi-api.js';
 import { HighlightResolver } from './config/highlight-resolver.js';
 import { AsyncCreateAppDefinitionApplicator } from '../app/index.js';
 
+// An `InitRuntime` provides this API while the script runs. It describes
+// the intended API for TypeScript consumers and provides editor guidance and
+// compile-time checking. The script uses it to configure Dirvi by evaluation
+// creating `Initialization` object used internally by Dirvi.
+//
+// WARNING: Does not validate values at runtime: `init.mjs` may be plain
+// JavaScript and can pass values that do not match these types. The runtime
+// must validate inputs before relying on them.
+
 /**
- * The public API exposed to `init.mjs` as the global `dirvi` object.
- *
- * An {@link InitRuntime} provides this API while the script runs. It describes
- * the intended API for TypeScript consumers and provides editor guidance and
- * compile-time checking. The script uses it to configure Dirvi by evaluation
- * creating {@link Initialization} object used internally by Dirvi.
- *
- * WARNING: Does not validate values at runtime: `init.mjs` may be plain
- * JavaScript and can pass values that do not match these types. The runtime
- * must validate inputs before relying on them.
+ * The public API exposed to `init.mjs` as the global `treevim` object.
  */
 export type PublicInitApi = {
-  readonly options: {
-    set: (patch: ConfigPatch) => void;
-  };
-
   readonly app: {
     /**
      * Optionally selects the app initially opened by the shell.
@@ -33,6 +29,13 @@ export type PublicInitApi = {
     register: (app: {
       id: string;
       create: AsyncCreateAppDefinitionApplicator;
+      /**
+       * Configuration patch for this app. Sets indentation and colors.
+       *
+       * The runtime merges it with the default configuration and validates
+       * the result. When the app becomes active, its configuration is used.
+       */
+      config?: ConfigPatch;
       /**
        * Normal commands invoked in normal mode while the app is active.
        *

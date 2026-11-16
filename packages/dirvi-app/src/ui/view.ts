@@ -16,15 +16,16 @@ type ViewRowBase = {
   indent: number;
   cursor: boolean;
   selected: boolean;
-  spans: readonly HighlightSpan[];
 };
 
 export type ViewRow =
   | (ViewRowBase & {
       type: 'leaf';
+      spans: readonly HighlightSpan[];
     })
   | (ViewRowBase & {
       type: 'branch';
+      spans: readonly HighlightSpan[];
       foldedCount?: number;
     })
   | (ViewRowBase & {
@@ -180,16 +181,11 @@ function viewRowsAtNode<Id, Value>(
         firstId: firstFoldedNavEntry.id,
       };
 
+      // Fold view rows created here
       rows.push({
         indent: parentPath.length + 1,
         cursor: cursorMethods.equal(cursor, entryCursor),
         selected: false,
-        spans: [
-          {
-            content: `… ${entry.folded.length} folded`,
-            highlight: 'fold-count',
-          },
-        ],
         type: 'fold',
         foldedCount: entry.folded.length,
       });

@@ -177,7 +177,7 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
     return isLoadedBranchData(data) ? data.children : undefined;
   }
 
-  const api: TreeMethods<Id, Value> = {
+  const methods: TreeMethods<Id, Value> = {
     createLeaf(id, value) {
       return fromData(createLeafData(id, value));
     },
@@ -187,7 +187,7 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
     },
 
     createLoadedBranch(id, value, children) {
-      const copiedChildren = copyUniqueChildren(children, api.id);
+      const copiedChildren = copyUniqueChildren(children, methods.id);
 
       if (copiedChildren === undefined) {
         return undefined;
@@ -259,7 +259,7 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
       }
 
       for (const child of children) {
-        if (api.id(child) === id) {
+        if (methods.id(child) === id) {
           return child;
         }
       }
@@ -294,7 +294,7 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
     },
 
     withLoadedChildren(node, children) {
-      const copiedChildren = copyUniqueChildren(children, api.id);
+      const copiedChildren = copyUniqueChildren(children, methods.id);
 
       if (copiedChildren === undefined) {
         return undefined;
@@ -308,14 +308,14 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
     },
 
     findAtPath(root, path) {
-      return api.selectAtPath(root, path, (node) => node);
+      return methods.selectAtPath(root, path, (node) => node);
     },
 
     selectAtPath(root, path, selector) {
       let node = root;
 
       for (const id of path) {
-        const child = api.findChildById(node, id);
+        const child = methods.findChildById(node, id);
 
         if (child === undefined) {
           return undefined;
@@ -356,23 +356,23 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
       return {
         id: data.id,
         value: data.value,
-        children: data.children.map(api.toModel),
+        children: data.children.map(methods.toModel),
       };
     },
 
     fromModel(model) {
       if (!('children' in model)) {
-        return api.createLeaf(model.id, model.value);
+        return methods.createLeaf(model.id, model.value);
       }
 
       if (model.children === null) {
-        return api.createUnloadedBranch(model.id, model.value);
+        return methods.createUnloadedBranch(model.id, model.value);
       }
 
       const children: TreeNode<Id, Value>[] = [];
 
       for (const childModel of model.children) {
-        const child = api.fromModel(childModel);
+        const child = methods.fromModel(childModel);
 
         if (child === undefined) {
           return undefined;
@@ -381,7 +381,7 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
         children.push(child);
       }
 
-      return api.createLoadedBranch(model.id, model.value, children);
+      return methods.createLoadedBranch(model.id, model.value, children);
     },
   };
 
@@ -400,7 +400,7 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
     let childIndex = -1;
 
     for (const [index, child] of children.entries()) {
-      if (api.id(child) === childId) {
+      if (methods.id(child) === childId) {
         childIndex = index;
         break;
       }
@@ -436,8 +436,8 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
      * `withLoadedChildren` revalidates sibling-ID uniqueness. This matters when
      * `modifier` replaces a node with another node having a different ID.
      */
-    return api.withLoadedChildren(node, updatedChildren);
+    return methods.withLoadedChildren(node, updatedChildren);
   }
 
-  return api;
+  return methods;
 }

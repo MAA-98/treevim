@@ -1,7 +1,7 @@
 import type {
   PublicInitApi,
   HighlightResolver,
-  AsyncCreateAppDefinitionApplicator,
+  AsyncCreateAppDefinitionApplicator, Config,
 } from 'dirvi-apis';
 
 import type { Initialization } from '../domain/initialization.js';
@@ -56,9 +56,9 @@ export type InitRuntime = {
  *   no app was registered, or the session has already been finished.
  */
 export function createInitRuntime(): InitRuntime {
-  let config = defaultConfig;
   let initialAppId: string | undefined;
   const registeredApps = new Map<string, AsyncCreateAppDefinitionApplicator>();
+  const appConfigs = new Map<string, Config>();
   const normalCommands = new Map<string, Map<string, NormalCommand>>();
   const exCommands = new Map<string, Map<string, ExCommand>>();
   const highlightResolvers = new Map<string, HighlightResolver>();
@@ -90,18 +90,18 @@ export function createInitRuntime(): InitRuntime {
 
   // === Public Initialization API =============================================
   const api: PublicInitApi = {
-    options: {
-      set: (patch) => {
-        ensureUnfinished();
-        try {
-          // Validate the merged result so patches cannot break config
-          // invariants outside the fields they directly update.
-          config = ConfigSchema.parse(merge(config, patch));
-        } catch (cause) {
-          throw new InvalidInitializationConfigError(cause);
-        }
-      },
-    },
+    // options: {
+    //   set: (patch) => {
+    //     ensureUnfinished();
+    //     try {
+    //       // Validate the merged result so patches cannot break config
+    //       // invariants outside the fields they directly update.
+    //       config = ConfigSchema.parse(merge(config, patch));
+    //     } catch (cause) {
+    //       throw new InvalidInitializationConfigError(cause);
+    //     }
+    //   },
+    // },
 
     app: {
       register: (app) => {
@@ -110,8 +110,15 @@ export function createInitRuntime(): InitRuntime {
         if (typeof app !== 'object' || app === null || Array.isArray(app)) {
           throw new InvalidInitializationValueError('App', 'must be an object');
         }
-
-        const { id: appId, create, normal, ex, highlightResolver } = app;
+        
+        const {
+          id: appId,
+          create,
+          config,
+          normal,
+          ex,
+          highlightResolver,
+        } = app;
 
         validateNonEmptyString(appId, 'App ID');
 
@@ -124,6 +131,16 @@ export function createInitRuntime(): InitRuntime {
             'App create',
             'must be a function',
           );
+        }
+        
+        // Config patch registration
+        let appConfig: Config;
+        try {
+          // Validate the merged result so patches cannot break config
+          // invariants outside the fields they directly update.
+          appConfig = ConfigSchema.parse(merge(defaultConfig, config));
+        } catch (cause) {
+          throw new InvalidInitializationConfigError(cause);
         }
 
         // Normal commands registration
@@ -226,7 +243,8 @@ export function createInitRuntime(): InitRuntime {
             'must be a function',
           );
         }
-
+        
+        appConfigs.set(appId, appConfig);
         registeredApps.set(appId, create);
         normalCommands.set(appId, appNormalCommands);
         exCommands.set(appId, appExCommands);
@@ -279,11 +297,11 @@ export function createInitRuntime(): InitRuntime {
     finished = true;
 
     return {
-      config,
       app: {
         initial,
         registered: new Map(registeredApps),
       },
+      configs: new Map(appConfigs),
       normalCommands: new Map(
         [...normalCommands].map(([appId, commands]) => [
           appId,

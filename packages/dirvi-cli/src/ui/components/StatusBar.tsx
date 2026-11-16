@@ -13,13 +13,14 @@ type StatusBarProps = {
 
 export function StatusBar({ inputState, config }: StatusBarProps) {
   const inputMode = inputState.inputMode;
-
   const commandColor = colorConfigToInkColor(config.theme.statusBar.command.fg);
   const normalColor = colorConfigToInkColor(config.theme.statusBar.normal.fg);
   const backgroundColor = colorConfigToInkColor(
-    config.theme.statusBar.background.bg,
+    inputMode === 'command'
+      ? config.theme.statusBar.command.bg
+      : config.theme.statusBar.normal.bg,
   );
-
+  
   return (
     <Box
       width="100%"

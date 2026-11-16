@@ -39,10 +39,6 @@ export type FgHlConfig = {
   fg: LogicalColor;
 };
 
-export type OptionalFgHlConfig = {
-  fg?: LogicalColor | undefined;
-};
-
 export type BgHlConfig = {
   bg: LogicalColor;
 };
@@ -55,16 +51,14 @@ export type FgAndBgHlConfig = {
 /** Resolved theme used to render Dirvi's interface. */
 export type Theme = {
   statusBar: {
-    command: FgHlConfig;
-    normal: FgHlConfig;
-    background: BgHlConfig;
+    command: FgAndBgHlConfig;
+    normal: FgAndBgHlConfig;
   };
   tree: {
-    leaf: FgHlConfig;
-    branch: FgHlConfig;
-    folded: FgHlConfig;
+    foldInfo: FgHlConfig;
     cursorLine: BgHlConfig;
-    indentGuide: OptionalFgHlConfig;
+    indentGuide?: FgHlConfig;
+    activeIndentGuide?: FgHlConfig;
   };
   feedbackBar: {
     message: FgAndBgHlConfig;

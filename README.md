@@ -7,8 +7,8 @@ A standalone, Vim-inspired TUI for navigating and live editing of
 Build extensions in TypeScript/JS to work with different kinds of trees.
 
 Provides a similar extensible editing environment as Vim/Neovim, but for trees
-instead of text buffers. Similar to `neo-tree`, but standalone with the API written
-in TypeScript. Easily write commands and plugins with the API documentation.
+instead of text buffers. Similar in function to `neo-tree`, but a standalone app with
+the API written in TypeScript. Easily write commands and plugins with the API documentation.
 
 > Current Status:
 > In beta, breaking API changes common.
@@ -205,9 +205,12 @@ of a project. I use the XML editor for controlling LLM context.
 
 - Why make it a separate app instead of a Vim/Neovim plugin?
 
-1. I don't know Vimscript or Lua well enough to make a good quality codebase I'm happy with.
-2. I wanted to focus on design and easy iteration rather than how to make it work as a plugin.
-3. I'm not a fan of putting everything inside Neovim, I prefer it as a focused text editor.
+1. `neo-tree` already exists, if you only want a directory editor and it works for you,
+keep it.
+2. I don't like to make my tools dependent on Neovim, I prefer keeping it a focused 
+text editor.
+3. Making the init script and APIs in TypeScript has increased the ease with which 
+I make and use extensions.
 
 By making it standalone, I do believe it's a better product in the end than a plugin.
 

@@ -14,6 +14,7 @@ import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { Initialization } from '../domain/initialization.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
 import { App } from './App.js';
+import { defaultConfig } from '../domain/config.js';
 
 // TODO Later: configuration watched for changes
 
@@ -103,6 +104,10 @@ export function AppSetup<Id, Value, ViewKey = string>({
   }, [appMethods]);
 
   // --- Pure function deps ---
+  const config = useMemo(
+    () => initialization.configs.get(appId) ?? defaultConfig,
+    [initialization.configs, appId]
+  )
   const normalCommands = useMemo(
     () => initialization.normalCommands.get(appId) ?? emptyNormalCommands,
     [initialization.normalCommands, appId],
@@ -161,7 +166,7 @@ export function AppSetup<Id, Value, ViewKey = string>({
       exCommands={exCommands}
       normalCommands={normalCommands}
       highlightResolver={highlightResolver}
-      config={initialization.config}
+      config={config}
       initialState={loadState.initialState}
       reducer={reducer}
       intentToEffect={intentToEffect}

@@ -68,7 +68,7 @@ export const xmlApp: CreateAppDefinitionApplicator = (input) => {
     presentNode: (_id: XmlId, value: XmlNodeValue, nodeKind: NodeKind) => [
       {
         content: value.kind,
-        highlight: nodeKind,
+        hlToken: nodeKind,
       },
     ],
 

@@ -33,14 +33,14 @@ export const app: CreateAppDefinitionApplicator = (input) => {
       if (value.kind === 'file') {
         const filenameHighlightToken = {
           content: id,
-          highlight: 'content',
+          hlToken: 'content',
         };
 
         if (['.ts', '.mts', '.cts'].some((suffix) => id.endsWith(suffix))) {
           return [
             {
               content: '\ue8ca ',
-              highlight: 'icon.typescript',
+              hlToken: 'icon.typescript',
             },
             filenameHighlightToken,
           ];
@@ -50,7 +50,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\ue7ba ',
-              highlight: 'icon.typescript',
+              hlToken: 'icon.typescript',
             },
             filenameHighlightToken,
           ];
@@ -60,7 +60,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\udb80\udf1e ',
-              highlight: 'icon.javascript',
+              hlToken: 'icon.javascript',
             },
             filenameHighlightToken,
           ];
@@ -70,7 +70,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\ue7ba ',
-              highlight: 'icon.javascript',
+              hlToken: 'icon.javascript',
             },
             filenameHighlightToken,
           ];
@@ -80,7 +80,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\udb80\udd69 ',
-              highlight: 'icon.json',
+              hlToken: 'icon.json',
             },
             filenameHighlightToken,
           ];
@@ -90,7 +90,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\uf48a ',
-              highlight: 'content',
+              hlToken: 'content',
             },
             filenameHighlightToken,
           ];
@@ -100,7 +100,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\udb81\udf21 ',
-              highlight: 'icon.svg',
+              hlToken: 'icon.svg',
             },
             filenameHighlightToken,
           ];
@@ -110,7 +110,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\ue711 ',
-              highlight: 'content',
+              hlToken: 'content',
             },
             filenameHighlightToken,
           ];
@@ -120,7 +120,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
           return [
             {
               content: '\udb80\udea2 ',
-              highlight: 'icon.git',
+              hlToken: 'icon.git',
             },
             filenameHighlightToken,
           ];
@@ -129,21 +129,21 @@ export const app: CreateAppDefinitionApplicator = (input) => {
         return [
           {
             content: '  ' + id,
-            highlight: 'file.name',
+            hlToken: 'file.name',
           },
         ];
       }
       if (value.kind === 'directory') {
         const foldernameHighlightToken = {
           content: id + '/',
-          highlight: 'content',
+          hlToken: 'content',
         };
 
         if (id === '.git') {
           return [
             {
               content: '\udb80\udea2 ',
-              highlight: 'icon.git',
+              hlToken: 'icon.git',
             },
             foldernameHighlightToken,
           ];
@@ -152,7 +152,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
         return [
           {
             content: '\uf07b ',
-            highlight: 'icon.folder',
+            hlToken: 'icon.folder',
           },
           foldernameHighlightToken,
         ];
@@ -160,7 +160,7 @@ export const app: CreateAppDefinitionApplicator = (input) => {
       return [
         {
           content: '  ' + id,
-          highlight: nodeKind,
+          hlToken: nodeKind,
         },
       ];
     },

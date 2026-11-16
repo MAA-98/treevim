@@ -1,13 +1,15 @@
 import { Box, Text } from 'ink';
 
-import type { Config, HighlightResolver } from 'dirvi-apis';
+import type { Config } from 'dirvi-apis';
 import type { ViewRow } from '@mak-98/dirvi-app';
 import { colorConfigToInkColor } from '@mak-98/dirvi-app';
+
+import type { StyledSpan } from '../../domain/styled-span.js';
 
 type ViewRowComponentProps = {
   row: ViewRow;
   config: Config;
-  highlightResolver?: HighlightResolver;
+  styledSpans: readonly StyledSpan[];
 };
 
 function indentationPrefix(
@@ -33,26 +35,26 @@ function indentationPrefix(
  * @param param0
  * @param param0.row - the view row
  * @param param0.config - the config
- * @param param0.highlightResolver - the resolver from highlight tokens to
- * logical color types.
+ * @param param0.styledSpans - the resolved spans to render
  * @constructor
  */
 export function ViewRowComponent({
   row,
   config,
-  highlightResolver,
+  styledSpans
 }: ViewRowComponentProps) {
-  const leafColor = colorConfigToInkColor(config.theme.tree.leaf.fg);
-  const branchColor = colorConfigToInkColor(config.theme.tree.branch.fg);
-  const foldedCountColor = colorConfigToInkColor(config.theme.tree.folded.fg);
   const cursorRowBgColor = colorConfigToInkColor(
     config.theme.tree.cursorLine.bg,
   );
+  const indentationGuideConfig = row.cursor
+    ? (config.theme.tree.activeIndentGuide ?? config.theme.tree.indentGuide)
+    : config.theme.tree.indentGuide;
 
   const indentationGuideColor =
-    config.theme.tree.indentGuide.fg === undefined
+    indentationGuideConfig === undefined
       ? undefined
-      : colorConfigToInkColor(config.theme.tree.indentGuide.fg);
+      : colorConfigToInkColor(indentationGuideConfig.fg);
+  
   const firstIndent =
     config.firstIndent === undefined
       ? ' '.repeat(config.indentSize)
@@ -63,113 +65,41 @@ export function ViewRowComponent({
     firstIndent,
     indentationGuideColor !== undefined,
   );
+  
+  return (
+    <Box
+      width="100%"
+      backgroundColor={row.cursor ? cursorRowBgColor : undefined}
+    >
+      {indentation !== '' && (
+        <Text
+          {...(indentationGuideColor === undefined
+            ? {}
+            : { color: indentationGuideColor, dimColor: true })}
+        >
+          {indentation}
+        </Text>
+      )}
 
-  function renderSpans(
-    fallbackColor: ReturnType<typeof colorConfigToInkColor>,
-    dimFallback = false,
-  ) {
-    return (
       <Text>
-        {row.spans.map((span, index) => {
-          const style = highlightResolver?.(span.highlight);
-
-          const color =
-            style === undefined
-              ? fallbackColor
-              : style.fg === undefined
-                ? undefined
-                : colorConfigToInkColor(style.fg);
-
-          const backgroundColor =
-            row.cursor || style?.bg === undefined
-              ? undefined
-              : colorConfigToInkColor(style.bg);
-
-          return (
-            <Text
-              key={index}
-              {...(color === undefined ? {} : { color })}
-              {...(backgroundColor === undefined ? {} : { backgroundColor })}
-              {...(style?.bold === undefined ? {} : { bold: style.bold })}
-              {...(style?.italic === undefined ? {} : { italic: style.italic })}
-              {...(style?.underline === undefined
-                ? {}
-                : { underline: style.underline })}
-              dimColor={style === undefined && dimFallback}
-            >
-              {span.content}
-            </Text>
-          );
-        })}
+        {styledSpans.map((span, index) => (
+          <Text
+            key={index}
+            {...(span.color === undefined ? {} : { color: span.color })}
+            {...(row.cursor || span.bgColor === undefined
+              ? {}
+              : { backgroundColor: span.bgColor })}
+            {...(span.bold === undefined ? {} : { bold: span.bold })}
+            {...(span.italic === undefined ? {} : { italic: span.italic })}
+            {...(span.underline === undefined
+              ? {}
+              : { underline: span.underline })}
+            dimColor={span.dimColor}
+          >
+            {span.content}
+          </Text>
+        ))}
       </Text>
-    );
-  }
-
-  switch (row.type) {
-    case 'leaf':
-      return (
-        <Box
-          width="100%"
-          backgroundColor={row.cursor ? cursorRowBgColor : undefined}
-        >
-          {indentation !== '' && (
-            <Text
-              {...(indentationGuideColor === undefined
-                ? {}
-                : { color: indentationGuideColor, dimColor: true })}
-            >
-              {indentation}
-            </Text>
-          )}
-
-          {renderSpans(leafColor)}
-        </Box>
-      );
-
-    case 'branch':
-      return (
-        <Box
-          width="100%"
-          backgroundColor={row.cursor ? cursorRowBgColor : undefined}
-        >
-          {indentation !== '' && (
-            <Text
-              {...(indentationGuideColor === undefined
-                ? {}
-                : { color: indentationGuideColor, dimColor: true })}
-            >
-              {indentation}
-            </Text>
-          )}
-
-          {renderSpans(branchColor)}
-
-          {row.foldedCount !== undefined && row.foldedCount > 0 && (
-            <Text color={foldedCountColor} dimColor>
-              {` … ${row.foldedCount}`}
-            </Text>
-          )}
-        </Box>
-      );
-
-    case 'fold':
-      return (
-        <Box
-          width="100%"
-          backgroundColor={row.cursor ? cursorRowBgColor : undefined}
-        >
-          {indentation !== '' && (
-            <Text
-              {...(indentationGuideColor === undefined
-                ? {}
-                : { color: indentationGuideColor, dimColor: true })}
-            >
-              {indentation}
-            </Text>
-          )}
-
-          {renderSpans(foldedCountColor, true)}
-        </Box>
-      );
-  }
+    </Box>
+  );
 }

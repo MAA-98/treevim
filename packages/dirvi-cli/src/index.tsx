@@ -7,7 +7,6 @@ import type { InitialAppOptions } from '@mak-98/dirvi-app';
 
 import { createInitialization } from './infrastructure/create-initialization.js';
 import {
-  getXdgDataHome,
   getXdgConfigHome,
 } from './infrastructure/get-xdg-paths.js';
 import { createClipboard } from './infrastructure/create-clipboard.js';
@@ -63,7 +62,7 @@ const initPath = join(treevimConfigDirectory, 'init.mjs');
 program
   .name('treevim')
   .description('View and manage trees.')
-  .version('0.1.0-beta.1')
+  .version('0.1.0-beta.2')
   .helpOption('--help')
   .option('-a, --app <id>', 'App name to open at startup.')
   .option('-i, --input <value>', 'Input for the app at startup.')

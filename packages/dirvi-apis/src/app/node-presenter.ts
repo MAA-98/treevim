@@ -6,7 +6,7 @@ export type HighlightToken = string;
 
 export type HighlightSpan = Readonly<{
   content: string;
-  highlight: HighlightToken;
+  hlToken: HighlightToken;
 }>;
 
 export type NodeKind = 'leaf' | 'unloaded-branch' | 'loaded-branch';

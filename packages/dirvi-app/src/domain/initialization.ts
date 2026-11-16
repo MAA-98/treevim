@@ -14,9 +14,6 @@ import { ExCommand, NormalCommand } from './command.js';
  * packages, choose the initial app, and register Ex commands.
  */
 export type Initialization = {
-  /** Dirvi-wide configuration resolved from the initialization script. */
-  readonly config: Readonly<Config>;
-
   /** Registered apps and the app selected for startup. */
   readonly app: {
     /** ID of the app to open initially; must be present in `registered`. */
@@ -26,6 +23,9 @@ export type Initialization = {
     registered: ReadonlyMap<string, AsyncCreateAppDefinitionApplicator>;
   };
 
+  /** Resolved app configurations keyed by app ID. */
+  readonly configs: ReadonlyMap<string, Readonly<Config>>;
+  
   /**
    * Normal commands registered by the initialization script, keyed by appId and
    * then command.
