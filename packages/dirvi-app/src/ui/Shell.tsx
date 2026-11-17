@@ -150,7 +150,7 @@ export function Shell({
     const LoadingScreenRenderer = loadingScreenRenderer;
     return <LoadingScreenRenderer />;
   }
-
+  
   return loadedApp.appMethodsApplicator((appMethods) => (
     <AppSetup
       appScreenRenderer={appScreenRenderer}
@@ -158,6 +158,7 @@ export function Shell({
       appId={loadedApp.appId}
       initialization={initialization}
       shellApi={shellApi}
+      // @ts-ignore
       appMethods={appMethods}
       {...(clipboard === undefined ? {} : { clipboard })}
     />

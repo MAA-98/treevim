@@ -1,5 +1,5 @@
 import type { ZodType } from 'zod';
-import type { NodePresenter } from './node-presenter.js';
+import type { NodePresenter, NodePresenterOptions } from './node-presenter.js';
 
 /**
  * Data used by Dirvi to construct the application's root.
@@ -66,12 +66,15 @@ export type AppDefinition<Id, Value> = Readonly<{
   readonly loadRoot: () => Promise<AppRoot<Id, Value>>;
 
   /**
-   * Describes a navigable entry's plain-text content and semantic highlight.
+   * Creates a presenter for the current presentation options.
    *
-   * Must be synchronous and side-effect-free. The host owns indentation,
-   * cursor styling, selection styling, and fold decorations.
+   * The presenter must be synchronous and side-effect-free.
+   * The host owns indentation, cursor styling, selection styling, and fold
+   * decorations.
    */
-  readonly presentNode: NodePresenter<Id, Value>;
+  readonly createNodePresenter: (
+    options: NodePresenterOptions,
+  ) => NodePresenter<Id, Value>;
 
   /**
    * Listener for when to reload to add or remove new children in loaded

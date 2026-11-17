@@ -33,11 +33,9 @@
     "env-paths": "^4.0.0"
   },
   "peerDependencies": {
-    "dirvi-apis": "workspace:^"
+    "treevim": "0.1.0-beta.2"
   },
   "devDependencies": {
-    "dirvi-apis": "workspace:*",
-    "dirvi-lib": "workspace:*",
     "@types/node": "^22.0.0",
     "typescript": "^5.0.0"
   }

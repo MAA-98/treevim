@@ -6,7 +6,7 @@ import type {
   AppDefinition,
   CreateAppDefinitionApplicator,
   NodeKind,
-} from 'dirvi-apis';
+} from 'treevim';
 
 import type { XmlId, XmlNodeValue } from './domain/xml-tree.js';
 import { xmlValueSchema } from './domain/xml-tree.js';
@@ -14,7 +14,7 @@ import { createXmlFileResyncSubscription } from './infrastructure/create-xml-fil
 import { XmlDom } from './services/xml-dom.js';
 import { createXmlDom } from './infrastructure/create-xml-dom.js';
 
-export const xmlApp: CreateAppDefinitionApplicator = (input) => {
+export const app: CreateAppDefinitionApplicator = (input) => {
   if (input === undefined) {
     throw new Error('xml-dirvi-app: No file path to XML file given.');
   }
@@ -65,7 +65,7 @@ export const xmlApp: CreateAppDefinitionApplicator = (input) => {
       return dom.getDocument();
     },
 
-    presentNode: (_id: XmlId, value: XmlNodeValue, nodeKind: NodeKind) => [
+    createNodePresenter: (_id: XmlId, value: XmlNodeValue, nodeKind: NodeKind) => [
       {
         content: value.kind,
         hlToken: nodeKind,

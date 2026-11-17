@@ -1,7 +1,7 @@
 import { readdir, readlink } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import type { AppChild } from 'dirvi-apis';
+import type { AppChild } from 'treevim';
 
 import {
   type PosixId,

@@ -10,6 +10,7 @@ export const ConfigSchema = z.object({
   // When omitted, ViewRowComponent uses `indentSize` spaces.
   // An empty string is valid and removes the first indentation prefix.
   firstIndent: z.string().optional(),
+  nerdFonts: z.boolean().default(false),
   theme: ThemeSchema.default(defaultTheme),
 }) satisfies z.ZodType<Config>;
 

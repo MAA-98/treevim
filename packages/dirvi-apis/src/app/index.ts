@@ -13,4 +13,5 @@ export type {
   HighlightSpan,
   NodeKind,
   NodePresenter,
+  NodePresenterOptions
 } from './node-presenter.js';

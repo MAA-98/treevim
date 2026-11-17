@@ -1,5 +1,5 @@
 import { ConfigPatch } from './config/config.js';
-import { DirviApi } from './dirvi-api.js';
+import { TreevimApi } from './treevim-api.js';
 import { HighlightResolver } from './config/highlight-resolver.js';
 import { AsyncCreateAppDefinitionApplicator } from '../app/index.js';
 
@@ -51,7 +51,7 @@ export type PublicInitApi = {
        */
       normal?: readonly {
         command: string;
-        execute: (api: DirviApi) => void | Promise<void>;
+        execute: (api: TreevimApi) => void | Promise<void>;
       }[];
       /**
        * Ex commands invoked as `:${command}` while this app is active.
@@ -66,7 +66,7 @@ export type PublicInitApi = {
        */
       ex?: readonly {
         command: string;
-        execute: (api: DirviApi, rawArgs?: string) => void | Promise<void>;
+        execute: (api: TreevimApi, rawArgs?: string) => void | Promise<void>;
       }[];
       /**
        * App-specific theme.

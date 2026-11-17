@@ -3,6 +3,6 @@ export type * from './config/theme.js';
 export type * from './config/highlight-resolver.js';
 export type { AppApi } from './app-api.js';
 export type { AppInput } from './app-input.js';
-export type { DirviApi } from './dirvi-api.js';
+export type { TreevimApi } from './treevim-api.js';
 export type { FeedbackType } from './feedback-type.js';
 export type { ShellApi } from './shell-api.js';

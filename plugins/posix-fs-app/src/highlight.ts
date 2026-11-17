@@ -1,59 +1,25 @@
-import type { HighlightResolver } from 'dirvi-apis';
+import type { HighlightResolver } from 'treevim';
 
 export const highlightResolver: HighlightResolver = (token: string) => {
   switch (token) {
-    case 'icon.typescript': {
-      return {
-        fg: {
-          hex: '#3178c6',
-        },
-      };
-    }
-    case 'icon.javascript': {
-      return {
-        fg: {
-          hex: '#f1dd35',
-        },
-      };
-    }
+    case 'node.content.icon.typescript':
+      return { fg: { hex: '#3178c6' } };
 
-    case 'icon.json': {
-      return {
-        fg: {
-          hex: '#ae8be6',
-        },
-      };
-    }
+    case 'node.content.icon.javascript':
+      return { fg: { hex: '#f1dd35' } };
 
-    case 'icon.git': {
-      return {
-        fg: {
-          hex: '#dd4d3a',
-        },
-      };
-    }
+    case 'node.content.icon.json':
+      return { fg: { hex: '#ae8be6' } };
 
-    case 'icon.svg': {
-      return {
-        fg: {
-          hex: '#ebad51',
-        },
-      };
-    }
+    case 'node.content.icon.git-logo':
+      return { fg: { hex: '#dd4d3a' } };
 
-    case 'icon.folder': {
-      return {
-        fg: {
-          hex: '#7ecdfa',
-        },
-      };
-    }
-    case 'content': {
-      return {
-        fg: {
-          hex: '#e1e1e1',
-        },
-      };
-    }
+    case 'node.content.icon.svg':
+      return { fg: { hex: '#ebad51' } };
+
+    case 'node.content.icon.folder':
+      return { fg: { hex: '#7ecdfa' } };
   }
+
+  return undefined;
 };

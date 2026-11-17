@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import type { TreeNode, TreeMethods } from 'dirvi-lib';
-
 import { UnixPath, UnixPathSchema } from './unix-path.js';
 
 // -----------------------------------------------------------------------------
@@ -58,8 +56,6 @@ export type PosixValue =
       kind: 'directory';
     }>;
 
-export type PosixTreeNode = TreeNode<PosixId, PosixValue>;
-
 // Schema ----------------------------------------------------------------------
 
 const PosixFileEntrySchema = z
@@ -90,92 +86,92 @@ export const posixValueSchema: z.ZodType<PosixValue> = z.discriminatedUnion(
 // POSIX domain constructors
 // -----------------------------------------------------------------------------
 
-export function createConstructors(
-  treeMethods: TreeMethods<PosixId, PosixValue>,
-) {
-  return {
-    file(name: PosixId): PosixTreeNode {
-      return treeMethods.createLeaf(name, {
-        kind: 'file',
-      });
-    },
-
-    symlink(name: PosixId, target: UnixPath): PosixTreeNode {
-      return treeMethods.createLeaf(name, {
-        kind: 'symlink',
-        target,
-      });
-    },
-
-    unloadedDirectory(name: PosixId): PosixTreeNode {
-      return treeMethods.createUnloadedBranch(name, {
-        kind: 'directory',
-      });
-    },
-
-    loadedDirectory(
-      name: PosixId,
-      children: Iterable<PosixTreeNode>,
-    ): PosixTreeNode | undefined {
-      return treeMethods.createLoadedBranch(
-        name,
-        { kind: 'directory' },
-        children,
-      );
-    },
-
-    /**
-     * Runtime domain invariant check.
-     *
-     * A file and symlink must be leaves. A directory must be a branch, whether
-     * loaded or unloaded.
-     */
-    isValid(node: PosixTreeNode): boolean {
-      const entry = treeMethods.value(node);
-      const treeKind = treeMethods.kind(node);
-
-      switch (entry.kind) {
-        case 'file':
-        case 'symlink':
-          return treeKind === 'leaf';
-
-        case 'directory':
-          return treeKind === 'unloaded-branch' || treeKind === 'loaded-branch';
-      }
-    },
-
-    /**
-     * Adds or replaces the loaded children of a directory.
-     *
-     * Returns `undefined` when:
-     * - the supplied node is not a directory; or
-     * - siblings have duplicate names.
-     */
-    withLoadedChildren(
-      node: PosixTreeNode,
-      children: Iterable<PosixTreeNode>,
-    ): PosixTreeNode | undefined {
-      if (treeMethods.value(node).kind !== 'directory') {
-        return undefined;
-      }
-
-      return treeMethods.withLoadedChildren(node, children);
-    },
-
-    /**
-     * Converts a directory to an unloaded directory.
-     *
-     * Files and symlinks cannot be converted to branches through this POSIX API.
-     */
-    toUnloadedDirectory(node: PosixTreeNode): PosixTreeNode | undefined {
-      if (treeMethods.value(node).kind !== 'directory') {
-        return undefined;
-      }
-
-      return treeMethods.toUnloadedBranch(node);
-    },
-  } as const;
-}
+// export function createConstructors(
+//   treeMethods: TreeMethods<PosixId, PosixValue>,
+// ) {
+//   return {
+//     file(name: PosixId): PosixTreeNode {
+//       return treeMethods.createLeaf(name, {
+//         kind: 'file',
+//       });
+//     },
+//
+//     symlink(name: PosixId, target: UnixPath): PosixTreeNode {
+//       return treeMethods.createLeaf(name, {
+//         kind: 'symlink',
+//         target,
+//       });
+//     },
+//
+//     unloadedDirectory(name: PosixId): PosixTreeNode {
+//       return treeMethods.createUnloadedBranch(name, {
+//         kind: 'directory',
+//       });
+//     },
+//
+//     loadedDirectory(
+//       name: PosixId,
+//       children: Iterable<PosixTreeNode>,
+//     ): PosixTreeNode | undefined {
+//       return treeMethods.createLoadedBranch(
+//         name,
+//         { kind: 'directory' },
+//         children,
+//       );
+//     },
+//
+//     /**
+//      * Runtime domain invariant check.
+//      *
+//      * A file and symlink must be leaves. A directory must be a branch, whether
+//      * loaded or unloaded.
+//      */
+//     isValid(node: PosixTreeNode): boolean {
+//       const entry = treeMethods.value(node);
+//       const treeKind = treeMethods.kind(node);
+//
+//       switch (entry.kind) {
+//         case 'file':
+//         case 'symlink':
+//           return treeKind === 'leaf';
+//
+//         case 'directory':
+//           return treeKind === 'unloaded-branch' || treeKind === 'loaded-branch';
+//       }
+//     },
+//
+//     /**
+//      * Adds or replaces the loaded children of a directory.
+//      *
+//      * Returns `undefined` when:
+//      * - the supplied node is not a directory; or
+//      * - siblings have duplicate names.
+//      */
+//     withLoadedChildren(
+//       node: PosixTreeNode,
+//       children: Iterable<PosixTreeNode>,
+//     ): PosixTreeNode | undefined {
+//       if (treeMethods.value(node).kind !== 'directory') {
+//         return undefined;
+//       }
+//
+//       return treeMethods.withLoadedChildren(node, children);
+//     },
+//
+//     /**
+//      * Converts a directory to an unloaded directory.
+//      *
+//      * Files and symlinks cannot be converted to branches through this POSIX API.
+//      */
+//     toUnloadedDirectory(node: PosixTreeNode): PosixTreeNode | undefined {
+//       if (treeMethods.value(node).kind !== 'directory') {
+//         return undefined;
+//       }
+//
+//       return treeMethods.toUnloadedBranch(node);
+//     },
+//   } as const;
+// }
 
 // -----------------------------------------------------------------------------
 // Serializable POSIX model

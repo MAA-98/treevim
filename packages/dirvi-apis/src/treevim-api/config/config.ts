@@ -4,6 +4,7 @@ export type Config = {
   indentSize: number;
   // When omitted, `indentSize` spaces is used:
   firstIndent?: string | undefined;
+  nerdFonts: boolean;
   theme: Theme;
 };
 

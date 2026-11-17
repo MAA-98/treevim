@@ -22,33 +22,33 @@ const emptyExCommands: ReadonlyMap<string, ExCommand> = new Map();
 const emptyNormalCommands: ReadonlyMap<string, NormalCommand> = new Map();
 const emptyHighlightResolver: HighlightResolver = (_string) => undefined;
 
-type AppSetupProps<Id, Value, ViewKey = string> = {
+type AppSetupProps<Id, Value> = {
   appScreenRenderer: AppScreenRenderer;
   loadingScreenRenderer: LoadingScreenRenderer;
   appId: string;
   initialization: Initialization;
   shellApi: ShellApi;
-  appMethods: AppMethods<Id, Value, ViewKey>;
+  appMethods: AppMethods<Id, Value>;
   clipboard?: (value: string) => void;
 };
 
-type LoadState<Id, Value, ViewKey> =
+type LoadState<Id, Value> =
   | {
       status: 'loading';
-      appMethods: AppMethods<Id, Value, ViewKey>;
+      appMethods: AppMethods<Id, Value>;
     }
   | {
       status: 'ready';
-      appMethods: AppMethods<Id, Value, ViewKey>;
+      appMethods: AppMethods<Id, Value>;
       initialState: State<Id, Value>;
     }
   | {
       status: 'error';
-      appMethods: AppMethods<Id, Value, ViewKey>;
+      appMethods: AppMethods<Id, Value>;
       error: Error;
     };
 
-export function AppSetup<Id, Value, ViewKey = string>({
+export function AppSetup<Id, Value>({
   appScreenRenderer,
   loadingScreenRenderer,
   appId,
@@ -56,8 +56,8 @@ export function AppSetup<Id, Value, ViewKey = string>({
   shellApi,
   appMethods,
   clipboard,
-}: AppSetupProps<Id, Value, ViewKey>) {
-  const [loadState, setLoadState] = useState<LoadState<Id, Value, ViewKey>>();
+}: AppSetupProps<Id, Value>) {
+  const [loadState, setLoadState] = useState<LoadState<Id, Value>>();
 
   useEffect(() => {
     let mounted = true;

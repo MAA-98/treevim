@@ -8,8 +8,9 @@ import {
   createCursorMethods,
   createUnorderedNavMethods,
   createOrderedNavMethods,
+  createTreeMethods,
+  createStateApi,
 } from 'dirvi-lib';
-import { createTreeMethods, createStateApi } from 'dirvi-lib';
 import type { AppDefinition, AppDefinitionApplicator } from 'dirvi-apis';
 
 /**
@@ -91,8 +92,7 @@ export function createAppMethods<Id, Value>(
 
       return root;
     },
-    presentNode: (id, value, isBranch) =>
-      appDefinition.presentNode(id, value, isBranch),
+    createNodePresenter: appDefinition.createNodePresenter,
     subscribeToResync: appDefinition.subscribeToResync,
     stateMethods: stateApi,
     navMethods,

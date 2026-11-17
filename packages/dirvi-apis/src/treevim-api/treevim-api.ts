@@ -13,7 +13,7 @@ import { AppApi } from './app-api.js';
  *
  * Implementation is in {@link App}, where commands call it.
  */
-export type DirviApi = {
+export type TreevimApi = {
   shell: ShellApi;
   app: AppApi;
 };

@@ -11,6 +11,13 @@ export type HighlightSpan = Readonly<{
 
 export type NodeKind = 'leaf' | 'unloaded-branch' | 'loaded-branch';
 
+export type NodePresenterOptions = Readonly<{
+  /**
+   * Whether Nerd Font icons are enabled for presentation.
+   */
+  nerdFonts: boolean;
+}>;
+
 export type NodePresenter<Id, Value> = (
   id: Id,
   value: Value,

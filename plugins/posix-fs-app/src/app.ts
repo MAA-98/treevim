@@ -1,6 +1,6 @@
 import { basename, join } from 'node:path';
 
-import type { CreateAppDefinitionApplicator, NodeKind } from 'dirvi-apis';
+import type { CreateAppDefinitionApplicator, NodeKind } from 'treevim';
 
 import type { PosixValue, PosixId } from './domain/posix-tree.js';
 import { posixFilenameSchema, posixValueSchema } from './domain/posix-tree.js';
@@ -29,141 +29,160 @@ export const app: CreateAppDefinitionApplicator = (input) => {
       id: rootId,
       value: { kind: 'directory' as const },
     }),
-    presentNode: (id: PosixId, value: PosixValue, nodeKind: NodeKind) => {
-      if (value.kind === 'file') {
-        const filenameHighlightToken = {
-          content: id,
-          hlToken: 'content',
-        };
+    createNodePresenter:
+      ({ nerdFonts }) =>
+      (id: PosixId, value: PosixValue, _nodeKind: NodeKind) => {
+        switch (value.kind) {
+          case 'file': {
+            const filenameHighlightToken = {
+              content: id,
+              hlToken: 'node.content.file.name',
+            };
 
-        if (['.ts', '.mts', '.cts'].some((suffix) => id.endsWith(suffix))) {
-          return [
-            {
-              content: '\ue8ca ',
-              hlToken: 'icon.typescript',
-            },
-            filenameHighlightToken,
-          ];
+            if (['.ts', '.mts', '.cts'].some((suffix) => id.endsWith(suffix))) {
+              return [
+                {
+                  content: '\ue8ca ',
+                  hlToken: 'node.content.icon.typescript',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id.endsWith('.tsx')) {
+              return [
+                {
+                  content: '\ue7ba ',
+                  hlToken: 'node.content.icon.typescript',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (['.js', '.mjs', '.cjs'].some((suffix) => id.endsWith(suffix))) {
+              return [
+                {
+                  content: '\udb80\udf1e ',
+                  hlToken: 'node.content.icon.javascript',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id.endsWith('.jsx')) {
+              return [
+                {
+                  content: '\ue7ba ',
+                  hlToken: 'node.content.icon.javascript',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id.endsWith('.json')) {
+              return [
+                {
+                  content: '\udb80\udd69 ',
+                  hlToken: 'node.content.icon.json',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id.endsWith('.md')) {
+              return [
+                {
+                  content: '\uf48a ',
+                  hlToken: 'node.content.icon.md',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id.endsWith('.svg')) {
+              return [
+                {
+                  content: '\udb81\udf21 ',
+                  hlToken: 'node.content.icon.svg',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id === '.DS_Store') {
+              return [
+                {
+                  content: '\ue711 ',
+                  hlToken: 'node.content.icon.apple-logo',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            if (id === '.gitignore') {
+              return [
+                {
+                  content: '\udb80\udea2 ',
+                  hlToken: 'node.content.icon.git-logo',
+                },
+                filenameHighlightToken,
+              ];
+            }
+
+            return [
+              {
+                content: '  ',
+                hlToken: 'node.content.padding',
+              },
+              filenameHighlightToken,
+            ];
+          }
+
+          case 'directory': {
+            const foldernameHighlightTokens = [
+              {
+                content: id,
+                hlToken: 'node.content.directory.name',
+              },
+              {
+                content: '/',
+                hlToken: 'node.content.directory.slash',
+              },
+            ];
+
+            if (id === '.git') {
+              return [
+                {
+                  content: '\udb80\udea2 ',
+                  hlToken: 'node.content.icon.git-logo',
+                },
+                ...foldernameHighlightTokens,
+              ];
+            }
+
+            return [
+              {
+                content: '\uf07b ',
+                hlToken: 'node.content.icon.folder',
+              },
+              ...foldernameHighlightTokens,
+            ];
+          }
+
+          case 'symlink': {
+            return [
+              {
+                content: '  ',
+                hlToken: 'node.content.padding',
+              },
+              {
+                content: id,
+                hlToken: 'node.content.symlink.name',
+              },
+            ];
+          }
         }
-
-        if (id.endsWith('.tsx')) {
-          return [
-            {
-              content: '\ue7ba ',
-              hlToken: 'icon.typescript',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (['.js', '.mjs', '.cjs'].some((suffix) => id.endsWith(suffix))) {
-          return [
-            {
-              content: '\udb80\udf1e ',
-              hlToken: 'icon.javascript',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (id.endsWith('.tsx')) {
-          return [
-            {
-              content: '\ue7ba ',
-              hlToken: 'icon.javascript',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (id.endsWith('.json')) {
-          return [
-            {
-              content: '\udb80\udd69 ',
-              hlToken: 'icon.json',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (id.endsWith('.md')) {
-          return [
-            {
-              content: '\uf48a ',
-              hlToken: 'content',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (id.endsWith('.svg')) {
-          return [
-            {
-              content: '\udb81\udf21 ',
-              hlToken: 'icon.svg',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (id === '.DS_Store') {
-          return [
-            {
-              content: '\ue711 ',
-              hlToken: 'content',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        if (id === '.gitignore') {
-          return [
-            {
-              content: '\udb80\udea2 ',
-              hlToken: 'icon.git',
-            },
-            filenameHighlightToken,
-          ];
-        }
-
-        return [
-          {
-            content: '  ' + id,
-            hlToken: 'file.name',
-          },
-        ];
-      }
-      if (value.kind === 'directory') {
-        const foldernameHighlightToken = {
-          content: id + '/',
-          hlToken: 'content',
-        };
-
-        if (id === '.git') {
-          return [
-            {
-              content: '\udb80\udea2 ',
-              hlToken: 'icon.git',
-            },
-            foldernameHighlightToken,
-          ];
-        }
-
-        return [
-          {
-            content: '\uf07b ',
-            hlToken: 'icon.folder',
-          },
-          foldernameHighlightToken,
-        ];
-      }
-      return [
-        {
-          content: '  ' + id,
-          hlToken: nodeKind,
-        },
-      ];
-    },
+      },
     subscribeToResync: createFsResyncSubscription(join(unixAbsPath)),
   };
 

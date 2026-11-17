@@ -8,14 +8,14 @@ a label, not a private staging area.
 
 ## 1. Choose the version
 
-Choose an unpublished version, for example `0.1.0-beta.2`. A beta version
+Choose an unpublished version, for example `0.1.0-beta.3`. A beta version
 number can be published under the `candidate` tag first; the version number
 and npm tag are separate things.
 
 Set it in your shell for the commands below:
 
 ```sh
-version="0.1.0-beta.2"
+version="0.1.0-beta.3"
 ```
 
 If you return to this guide in a new shell, set `version` again.
@@ -59,14 +59,13 @@ From the repository root:
 pnpm release:prepare
 ```
 
-Check that the assembled package and CLI both report the intended version:
+Check that the assembled package reports the intended version:
 
 ```sh
 node -p "JSON.parse(require('node:fs').readFileSync('release/treevim/package.json', 'utf8')).version"
-node release/treevim/dist/cli.js --version
 ```
 
-Both should match `$version`.
+Should match `$version`.
 
 Create a tarball outside the repository:
 
@@ -77,17 +76,19 @@ echo "Release directory: $release_dir"
 (cd release/treevim && npm pack --pack-destination "$release_dir")
 ```
 
-Review the tarball contents printed by npm. In particular, check the README,
-license, CLI, and public API declarations.
+Add a local installation and CLI check:
+```sh
+test_dir="$(mktemp -d)"
+echo "Test directory: $test_dir"
 
-The tarball is:
+npm install --prefix "$test_dir" "$release_dir/treevim-$version.tgz"
 
-```text
-$release_dir/treevim-<version>.tgz
+"$test_dir/node_modules/.bin/treevim" --version
+"$test_dir/node_modules/.bin/treevim" --help
 ```
 
 If anything needs changing, make the change in source, update the release
-commit and tag as appropriate, and build and pack again **before publishing**.
+commit and tag as appropriate, and build and pack again before publishing.
 
 ## 4. Publish the candidate
 

@@ -35,7 +35,7 @@ import type { ExCommand, NormalCommand } from '../domain/command.js';
 type AppProps<Id, Value, ViewKey = string> = {
   screenRenderer: AppScreenRenderer;
   shellApi: ShellApi;
-  appMethods: AppMethods<Id, Value, ViewKey>;
+  appMethods: AppMethods<Id, Value>;
   normalCommands: ReadonlyMap<string, NormalCommand>;
   exCommands: ReadonlyMap<string, ExCommand>;
   config: Readonly<Config>;
@@ -99,7 +99,7 @@ export function App<Id, Value, ViewKey = string>({
     appMethods.navMethods,
     appMethods.stateMethods.cursorMethods,
     rowCount,
-    appMethods.presentNode,
+    appMethods.createNodePresenter({ nerdFonts: true }),
   );
 
   // ===========================================================================
