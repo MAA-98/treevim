@@ -91,19 +91,6 @@ export function createInitRuntime(): InitRuntime {
 
   // === Public Initialization API =============================================
   const api: PublicInitApi = {
-    // options: {
-    //   set: (patch) => {
-    //     ensureUnfinished();
-    //     try {
-    //       // Validate the merged result so patches cannot break config
-    //       // invariants outside the fields they directly update.
-    //       config = ConfigSchema.parse(merge(config, patch));
-    //     } catch (cause) {
-    //       throw new InvalidInitializationConfigError(cause);
-    //     }
-    //   },
-    // },
-
     app: {
       register: (app) => {
         ensureUnfinished();
@@ -139,7 +126,9 @@ export function createInitRuntime(): InitRuntime {
         try {
           // Validate the merged result so patches cannot break config
           // invariants outside the fields they directly update.
-          appConfig = ConfigSchema.parse(merge(defaultConfig, config));
+          appConfig = ConfigSchema.parse(
+            config === undefined ? defaultConfig : merge(defaultConfig, config),
+          );
         } catch (cause) {
           throw new InvalidInitializationConfigError(cause);
         }

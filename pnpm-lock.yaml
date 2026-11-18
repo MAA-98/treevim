@@ -75,6 +75,9 @@ importers:
       '@mak-98/dirvi-app':
         specifier: workspace:*
         version: link:../dirvi-app
+      '@mak-98/posix-fs-dirvi-app':
+        specifier: ^0.11.0-beta.25
+        version: 0.11.0-beta.25(treevim@0.1.0-beta.3(@types/react@19.2.17))
       commander:
         specifier: ^13.0.0
         version: 13.1.0
@@ -368,6 +371,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@mak-98/posix-fs-dirvi-app@0.11.0-beta.25':
+    resolution: {integrity: sha512-W9wEwlzH1ieT4qUX+Vgh3TEY2iO+A/g/eY1OQ4eRQl3hjZIXLoukrROkyhAALN23GFsIC22S/H9Xa2vQPoJQyw==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      treevim: 0.1.0-beta.3
 
   '@oxc-project/types@0.148.0':
     resolution: {integrity: sha512-Nm4s/jB+4FpFsPhWGEC4h7rzksesmtnMXomo6rCMcg/b8zLQuOziRgkCS1fxDCXOlJB/6Q8oABOZ/OP6RIPj9A==}
@@ -1420,6 +1429,12 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@mak-98/posix-fs-dirvi-app@0.11.0-beta.25(treevim@0.1.0-beta.3(@types/react@19.2.17))':
+    dependencies:
+      env-paths: 4.0.0
+      treevim: 0.1.0-beta.3(@types/react@19.2.17)
+      zod: 4.4.3
 
   '@oxc-project/types@0.148.0': {}
 

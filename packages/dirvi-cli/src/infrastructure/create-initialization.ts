@@ -4,16 +4,17 @@ import { pathToFileURL } from 'node:url';
 import type { PublicInitApi } from 'dirvi-apis';
 import type { Initialization } from '@mak-98/dirvi-app';
 import { createInitRuntime } from '@mak-98/dirvi-app';
+import { createNoFileInitialization } from './create-no-file-initialization.js';
 
 /**
  * Evaluates the user's init.mjs startup script and returns its resolved
  * configuration object `Initialization`.
  *
- * While init.mjs is evaluated, this loader provides the global `dirvi` API.
- * The script configures dirvi by calling that API:
+ * While init.mjs is evaluated, this loader provides the global `treevim` API.
+ * The script configures treevim by calling that API:
  *
  * ```js
- * dirvi.options.set({
+ * treevim.options.set({
  *   indentSize: 4,
  * });
  * ```
@@ -23,7 +24,7 @@ import { createInitRuntime } from '@mak-98/dirvi-app';
  * configuration.
  *
  * init.mjs is trusted local code. It executes with the same Node.js
- * permissions as the dirvi process and may import other ESM modules.
+ * permissions as the treevim process and may import other ESM modules.
  *
  * @throws {Error} When init.mjs cannot be read, imported, executed, or when
  * configuration registered by the script is invalid.
@@ -37,7 +38,7 @@ export async function createInitialization(
     await access(initPath);
   } catch (error: unknown) {
     if (isFileNotFoundError(error)) {
-      return createInitRuntime().finish();
+      return createNoFileInitialization()
     }
     throw error;
   }
@@ -53,7 +54,7 @@ export async function createInitialization(
   Object.defineProperty(globalThis, 'treevim', {
     configurable: true,
     value: runtime.api,
-    // init.mjs may call the global `dirvi` API but cannot replace it.
+    // init.mjs may call the global `treevim` API but cannot replace it.
     writable: false,
   });
 
@@ -77,7 +78,7 @@ export async function createInitialization(
 }
 
 /**
- * Restores the global `dirvi` property to exactly the state it had before
+ * Restores the global `treevim` property to exactly the state it had before
  * init.mjs was evaluated.
  *
  * Restoring the full property descriptor preserves a pre-existing getter,
