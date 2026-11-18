@@ -44,6 +44,7 @@
     "tag": "beta"
   },
   "dependencies": {
+    "@mak-98/posix-fs-dirvi-app": "^0.11.0-beta.25",
     "commander": "^13.0.0",
     "ink": "^7.1.1",
     "react": "^19.0.0",

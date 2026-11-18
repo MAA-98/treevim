@@ -86,6 +86,7 @@ npm install --prefix "$test_dir" "$release_dir/treevim-$version.tgz"
 
 "$test_dir/node_modules/.bin/treevim" --version
 "$test_dir/node_modules/.bin/treevim" --help
+"$test_dir/node_modules/.bin/treevim"
 ```
 
 If anything needs changing, make the change in source, update the release
