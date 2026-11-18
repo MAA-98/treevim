@@ -5,8 +5,7 @@ import type { FeedbackType } from './feedback-type.js';
  */
 export type AppApi = {
   pathAtCursor: () => unknown[];
-  valueAtCursor: () => unknown;
-
+  //valueAtCursor: () => unknown;
   visiblePaths: () => unknown[][];
   addMessage: (message: string, type?: FeedbackType) => void;
 };

@@ -172,7 +172,7 @@ export function App<Id, Value, ViewKey = string>({
     () => ({
       pathAtCursor: () => appMethods.stateMethods.cursorPath(stateRef.current),
       // TODO: Implement with appMethods
-      valueAtCursor: () => 'test value',
+      //valueAtCursor: () => 'test value',
       visiblePaths: () => {
         const state = stateRef.current;
         const root = appMethods.stateMethods.getRoot(state);
