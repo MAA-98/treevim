@@ -77,6 +77,7 @@ echo "Release directory: $release_dir"
 ```
 
 Add a local installation and CLI check:
+
 ```sh
 test_dir="$(mktemp -d)"
 echo "Test directory: $test_dir"

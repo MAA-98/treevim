@@ -106,8 +106,8 @@ export function AppSetup<Id, Value>({
   // --- Pure function deps ---
   const config = useMemo(
     () => initialization.configs.get(appId) ?? defaultConfig,
-    [initialization.configs, appId]
-  )
+    [initialization.configs, appId],
+  );
   const normalCommands = useMemo(
     () => initialization.normalCommands.get(appId) ?? emptyNormalCommands,
     [initialization.normalCommands, appId],

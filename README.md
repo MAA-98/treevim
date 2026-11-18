@@ -7,8 +7,9 @@ A standalone, Vim-inspired TUI for navigating and live editing of
 Build extensions in TypeScript/JS to work with different kinds of trees.
 
 Provides a similar extensible editing environment as Vim/Neovim, but for trees
-instead of text buffers. Similar in function to `neo-tree`, but a standalone app with
-the API written in TypeScript. Easily write commands and plugins with the API documentation.
+instead of text buffers. Similar to [`neo-tree`](https://github.com/nvim-neo-tree/neo-tree.nvim.git), 
+but `treevim` is a standalone Node.js app that supports both ordered and unordered 
+trees with an API in TypeScript. Easily write commands and plugins with the API documentation.
 
 > Current Status:
 > In beta, breaking API changes common.
@@ -199,31 +200,39 @@ Fold state is independent of the materialized directory buffer:
 
 - What is the use case?
 
-I use the directory app for navigating project files, with folds now becoming
+I use the directory app for navigating project files, with tree folds now becoming
 the indispensable way for me to quickly view files relevant to a specific part
-of a project. I use the XML editor for controlling LLM context.
+of a project. I use the XML editor for editing LLM context.
+
+- How is it different from Neovim's `neo-tree` plugin?
+
+`neo-tree` only really supports unordered tree semantics (like directories)
+but not ordered trees, whereas `treevim` supports both with slightly different UI
+but common controls. This allows using `treevim` for things like XML, ASTs, s-expressions,
+etc. In addition, `treevim` has new concepts like fold trees which add to developer 
+ergonomics.
 
 - Why make it a separate app instead of a Vim/Neovim plugin?
 
 1. `neo-tree` already exists, if you only want a directory editor and it works for you,
-keep it.
-2. I don't like to make my tools dependent on Neovim, I prefer keeping it a focused 
-text editor.
-3. Making the init script and APIs in TypeScript has increased the ease with which 
-I make and use extensions.
+   then keep it. 
+2. I like to keep my tools independent of each other, keeping Neovim as a focused
+   text editor.
+3. Making the init script and APIs in TypeScript has increased the ease with which
+   I make and use extensions.
 
-By making it standalone, I do believe it's a better product in the end than a plugin.
+By making it standalone, I do believe it's a better tool in the end than a plugin.
 
 - Why write it using TypeScript/React/Ink?
 
-As for the answer above, it was the easiest way for me to get started. It has the
-consequence of making plugins and scripting very approachable. I plan to make future
+It was the easiest way for me to get started, given I'm not familiar with Lua. It has 
+the consequence of making plugins and scripting very approachable. I plan to make future
 incremental rewrites in Rust.
 
 - What is your AI use policy?
 
-LLMs are used to write function implementations given a natural language specification.
-It is never used to write the types or overall architecture, although suggestions
+LLMs are used to assist writing function implementations given a natural language 
+specification. It is never used to design the overall architecture, although suggestions
 from LLMs may be taken into account. Unit tests may be written by LLMs without exposure
 to implementations, property tests are usually handmade with LLM assistance. Contributions
 are expected to use a similar workflow.

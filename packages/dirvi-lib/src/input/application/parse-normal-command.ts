@@ -22,43 +22,46 @@ export function parseNormalCommand<Id, Value>(
 ): ParseNormalCommandResult<Id, Value> {
   const tokens = tokenizeNormalCommand(normalBuffer);
 
-  if (tokens.some(isInvalidToken)) {
+  // If any token is invalid then command is invalid
+  if (tokens.some(isInvalidToken) || tokens.length === 0) {
     return {
       kind: 'invalid',
     };
   }
 
-  const [firstToken, secondToken] = tokens;
-
-  if (firstToken === undefined) {
-    return {
-      kind: 'invalid',
-    };
-  }
-
+  const firstToken = tokens[0];
   if (firstToken.tokenType === 'validInteger') {
+    const secondToken = tokens[1];
     if (secondToken === undefined) {
-      return {
-        kind: 'incomplete',
-      };
+      // 0 goes to first sibling, other integers are incomplete
+      return firstToken.value === 0
+        ? {
+            kind: 'complete',
+            action: {
+              effectActionType: 'firstSibling',
+            },
+          }
+        : {
+            kind: 'incomplete',
+          };
     }
-
+    
+    // first token is an integer, second token defined
     if (tokens.length !== 2) {
       return {
         kind: 'invalid',
-      };
+      }
     }
-
-    return tokenToResult<Id, Value>(secondToken, firstToken.value);
+    return IntAndTokenToResult<Id, Value>(firstToken.value, secondToken);
   }
-
+  
   if (tokens.length !== 1) {
     return {
       kind: 'invalid',
     };
   }
-
-  return tokenToResult<Id, Value>(firstToken, 0);
+  
+  return singleNonIntegerToken<Id, Value>(firstToken);
 }
 
 function isInvalidToken(token: Token): boolean {
@@ -67,9 +70,41 @@ function isInvalidToken(token: Token): boolean {
   );
 }
 
-function tokenToResult<Id, Value>(
+function singleNonIntegerToken<Id, Value>(
   token: Token,
-  index: number,
+): ParseNormalCommandResult<Id, Value> {
+  switch (token.tokenType) {
+    case 'navigationCommand':
+      return {
+        kind: 'complete',
+        action: {
+          effectActionType: token.value,
+        },
+      };
+
+    case 'partialCommand':
+      return {
+        kind: 'incomplete',
+      };
+
+    case 'foldCommand':
+      return {
+        kind: 'complete',
+        action: foldCommandToAction<Id, Value>(token, 0),
+      };
+
+    case 'validInteger':
+    case 'invalidInteger':
+    case 'invalidCommand':
+      return {
+        kind: 'invalid',
+      };
+  }
+}
+
+function IntAndTokenToResult<Id, Value>(
+  integer: number,
+  token: Token,
 ): ParseNormalCommandResult<Id, Value> {
   switch (token.tokenType) {
     case 'partialCommand':
@@ -80,12 +115,13 @@ function tokenToResult<Id, Value>(
     case 'foldCommand':
       return {
         kind: 'complete',
-        action: foldCommandToAction<Id, Value>(token, index),
+        action: foldCommandToAction<Id, Value>(token, integer),
       };
 
     case 'validInteger':
     case 'invalidInteger':
     case 'invalidCommand':
+    case 'navigationCommand':
       return {
         kind: 'invalid',
       };

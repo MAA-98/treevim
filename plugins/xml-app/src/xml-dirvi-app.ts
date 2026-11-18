@@ -65,7 +65,11 @@ export const app: CreateAppDefinitionApplicator = (input) => {
       return dom.getDocument();
     },
 
-    createNodePresenter: (_id: XmlId, value: XmlNodeValue, nodeKind: NodeKind) => [
+    createNodePresenter: (
+      _id: XmlId,
+      value: XmlNodeValue,
+      nodeKind: NodeKind,
+    ) => [
       {
         content: value.kind,
         hlToken: nodeKind,

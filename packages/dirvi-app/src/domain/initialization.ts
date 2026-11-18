@@ -25,7 +25,7 @@ export type Initialization = {
 
   /** Resolved app configurations keyed by app ID. */
   readonly configs: ReadonlyMap<string, Readonly<Config>>;
-  
+
   /**
    * Normal commands registered by the initialization script, keyed by appId and
    * then command.

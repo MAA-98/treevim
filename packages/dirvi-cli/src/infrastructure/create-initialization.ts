@@ -45,7 +45,10 @@ export async function createInitialization(
   const runtime = createInitRuntime();
   // Preserve an existing property descriptor so this loader does not leak its
   // startup API into the process after init.mjs evaluation completes.
-  const previousTreevim = Object.getOwnPropertyDescriptor(globalThis, 'treevim');
+  const previousTreevim = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'treevim',
+  );
 
   Object.defineProperty(globalThis, 'treevim', {
     configurable: true,

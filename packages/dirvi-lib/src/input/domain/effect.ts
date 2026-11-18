@@ -78,12 +78,22 @@ export type FoldTreeReference =
     }>;
 
 /**
- * An action interpreted by the state reducer.
+ * An action that only changes the state, through `EffectToAction` and
+ * `Reducer`.
  *
  * @typeParam Id - The sibling-unique tree-node ID type.
  * @typeParam Value - Application-owned data stored in each tree node.
  */
 export type EffectAction<Id, Value> =
+  | Readonly<{
+      effectActionType: 'setBranchEntries';
+      path: readonly Id[];
+      entries: readonly TreeNode<Id, Value>[] | null;
+    }>
+  // ---------------------------------------------------------------------------
+  // Navigation Actions
+  // These are interpreted into simpler `ReducerActions` by `EffectToAction`.
+  // ---------------------------------------------------------------------------
   | Readonly<{
       effectActionType: 'nextEntry';
     }>
@@ -91,13 +101,17 @@ export type EffectAction<Id, Value> =
       effectActionType: 'prevEntry';
     }>
   | Readonly<{
-      effectActionType: 'setBranchEntries';
-      path: readonly Id[];
-      entries: readonly TreeNode<Id, Value>[] | null;
+      effectActionType: 'firstSibling';
+    }>
+  | Readonly<{
+      effectActionType: 'lastSibling';
     }>
   | Readonly<{
       effectActionType: 'navigateToParent';
     }>
+  // ---------------------------------------------------------------------------
+  // Fold Actions
+  // ---------------------------------------------------------------------------
   | Readonly<{
       effectActionType: 'addToFoldTree';
       foldTree: FoldTreeReference;

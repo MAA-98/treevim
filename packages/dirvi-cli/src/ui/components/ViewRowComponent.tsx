@@ -41,7 +41,7 @@ function indentationPrefix(
 export function ViewRowComponent({
   row,
   config,
-  styledSpans
+  styledSpans,
 }: ViewRowComponentProps) {
   const cursorRowBgColor = colorConfigToInkColor(
     config.theme.tree.cursorLine.bg,
@@ -54,7 +54,7 @@ export function ViewRowComponent({
     indentationGuideConfig === undefined
       ? undefined
       : colorConfigToInkColor(indentationGuideConfig.fg);
-  
+
   const firstIndent =
     config.firstIndent === undefined
       ? ' '.repeat(config.indentSize)
@@ -65,7 +65,7 @@ export function ViewRowComponent({
     firstIndent,
     indentationGuideColor !== undefined,
   );
-  
+
   return (
     <Box
       width="100%"

@@ -20,7 +20,7 @@ export function StatusBar({ inputState, config }: StatusBarProps) {
       ? config.theme.statusBar.command.bg
       : config.theme.statusBar.normal.bg,
   );
-  
+
   return (
     <Box
       width="100%"

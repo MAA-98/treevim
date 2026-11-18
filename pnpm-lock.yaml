@@ -135,8 +135,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       treevim:
-        specifier: 0.1.0-beta.2
-        version: 0.1.0-beta.2(@types/react@19.2.17)
+        specifier: 0.1.0-beta.3
+        version: 0.1.0-beta.3(@types/react@19.2.17)
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -1123,6 +1123,11 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
+  treevim@0.1.0-beta.3:
+    resolution: {integrity: sha512-R7dCuWULDIWqTrWMLdUUl+In4QUKoXLuWJIxvZ8jegFfupKHq+JytZuE0Tx9rP9URqrn5PRny7mDcdoJx6Jlrg==}
+    engines: {node: '>=22'}
+    hasBin: true
+
   tsconfig-paths-webpack-plugin@4.2.0:
     resolution: {integrity: sha512-zbem3rfRS8BgeNK50Zz5SIQgXzLafiHjOwUAvk/38/o1jHn/V5QAgVUcz884or7WYcPaH3N2CIfUc2u0ul7UcA==}
     engines: {node: '>=10.13.0'}
@@ -2084,6 +2089,20 @@ snapshots:
   tinyrainbow@3.1.1: {}
 
   treevim@0.1.0-beta.2(@types/react@19.2.17):
+    dependencies:
+      commander: 13.1.0
+      ink: 7.1.1(@types/react@19.2.17)(react@19.2.7)
+      react: 19.2.7
+      slice-ansi: 9.0.1
+      wrap-ansi: 10.0.2
+      zod: 4.4.3
+    transitivePeerDependencies:
+      - '@types/react'
+      - bufferutil
+      - react-devtools-core
+      - utf-8-validate
+
+  treevim@0.1.0-beta.3(@types/react@19.2.17):
     dependencies:
       commander: 13.1.0
       ink: 7.1.1(@types/react@19.2.17)(react@19.2.7)

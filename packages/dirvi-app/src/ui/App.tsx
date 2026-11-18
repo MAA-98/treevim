@@ -152,6 +152,8 @@ export function App<Id, Value, ViewKey = string>({
   const appApi = useMemo<AppApi>(
     () => ({
       pathAtCursor: () => appMethods.stateMethods.cursorPath(stateRef.current),
+      // TODO: Implement with appMethods
+      valueAtCursor: () => 'test value',
       visiblePaths: () => {
         const state = stateRef.current;
         const root = appMethods.stateMethods.getRoot(state);
@@ -166,8 +168,6 @@ export function App<Id, Value, ViewKey = string>({
           ? []
           : appMethods.navMethods.visiblePaths(navigation.children);
       },
-      // TODO: Implement with appMethods
-      valueAtCursor: () => 'test value',
       addMessage: (message: string, type?: FeedbackType) => {
         feedbackApi.addMessage(message, type);
       },

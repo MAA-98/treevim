@@ -32,7 +32,7 @@ export function ViewRowsComponent({
       dimColor: false,
     };
   };
-  
+
   const createFoldSpan = (content: string): StyledSpan => ({
     content,
     color: colorConfigToInkColor(config.theme.tree.foldInfo.fg),
@@ -42,7 +42,7 @@ export function ViewRowsComponent({
     underline: undefined,
     dimColor: true,
   });
-  
+
   return (
     <Box flexDirection="column" flexShrink={0} width="100%">
       {view.rows.length === 0 ? (

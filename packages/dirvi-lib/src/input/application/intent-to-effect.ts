@@ -19,15 +19,15 @@ export type IntentToEffect<Id, Value> = (
 ) => Effect<Id, Value> | undefined;
 
 export function createIntentToEffect<Id, Value>(
-  userNormalCommands: ReadonlySet<string>,
+  customNormalCommands: ReadonlySet<string>,
   userExCommands: ReadonlySet<string>,
   stateApi: StateMethods<Id, Value>,
 ): IntentToEffect<Id, Value> {
   return (intent, state) => {
     switch (intent.intentType) {
       case 'setNormalBuffer':
-        return normalBufferToEffectResult<Id, Value>(
-          userNormalCommands,
+        return normalBufferToEffect<Id, Value>(
+          customNormalCommands,
           intent.normalBuffer,
         );
 
@@ -134,11 +134,11 @@ function clearBuffer<Id, Value>(): Effect<Id, Value> {
  * - The buffer is a prefix of a possible motion: retain it.
  * - The buffer is not a valid prefix: clear it.
  */
-function normalBufferToEffectResult<Id, Value>(
-  userNormalCommands: ReadonlySet<string>,
+function normalBufferToEffect<Id, Value>(
+  customNormalCommands: ReadonlySet<string>,
   updatedNormalBuffer: string,
 ): Effect<Id, Value> {
-  if (userNormalCommands.has(updatedNormalBuffer)) {
+  if (customNormalCommands.has(updatedNormalBuffer)) {
     return {
       effectType: 'userNormalCommand',
       command: updatedNormalBuffer,
@@ -155,7 +155,7 @@ function normalBufferToEffectResult<Id, Value>(
       return dispatchAction(commandResult.action);
 
     case 'invalid':
-      const isUserCommandPrefix = [...userNormalCommands].some((command) =>
+      const isUserCommandPrefix = [...customNormalCommands].some((command) =>
         command.startsWith(updatedNormalBuffer),
       );
 

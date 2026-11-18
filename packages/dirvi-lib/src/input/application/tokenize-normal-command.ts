@@ -28,7 +28,7 @@ function consume(reader: NormalBufferReader): string | undefined {
 }
 
 // =============================================================================
-// Tokenizer
+// Normal Commands Tokens
 // =============================================================================
 
 export type ValidInteger = {
@@ -39,6 +39,11 @@ export type ValidInteger = {
 export type InvalidInteger = {
   tokenType: 'invalidInteger';
   value: string;
+};
+
+export type NavigationCommand = {
+  tokenType: 'navigationCommand';
+  value: 'lastSibling';
 };
 
 export type PartialCommand = {
@@ -64,6 +69,7 @@ export type InvalidCommand = {
 export type Token =
   | ValidInteger
   | InvalidInteger
+  | NavigationCommand
   | PartialCommand
   | FoldCommand
   | InvalidCommand;
@@ -128,6 +134,12 @@ function tokenizeCommand(reader: NormalBufferReader): Token {
   const character = consume(reader);
 
   switch (character) {
+    case '$':
+      return {
+        tokenType: 'navigationCommand',
+        value: 'lastSibling',
+      };
+    
     case 'z':
       return tokenizeFoldCommand(reader);
 

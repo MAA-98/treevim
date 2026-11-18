@@ -1,7 +1,8 @@
 import type {
   PublicInitApi,
   HighlightResolver,
-  AsyncCreateAppDefinitionApplicator, Config,
+  AsyncCreateAppDefinitionApplicator,
+  Config,
 } from 'dirvi-apis';
 
 import type { Initialization } from '../domain/initialization.js';
@@ -110,7 +111,7 @@ export function createInitRuntime(): InitRuntime {
         if (typeof app !== 'object' || app === null || Array.isArray(app)) {
           throw new InvalidInitializationValueError('App', 'must be an object');
         }
-        
+
         const {
           id: appId,
           create,
@@ -132,7 +133,7 @@ export function createInitRuntime(): InitRuntime {
             'must be a function',
           );
         }
-        
+
         // Config patch registration
         let appConfig: Config;
         try {
@@ -243,7 +244,7 @@ export function createInitRuntime(): InitRuntime {
             'must be a function',
           );
         }
-        
+
         appConfigs.set(appId, appConfig);
         registeredApps.set(appId, create);
         normalCommands.set(appId, appNormalCommands);

@@ -89,6 +89,9 @@ export function createEffectToAction<Id, Value>(
 ): EffectToAction<Id, Value> {
   const { cursorMethods, foldMethods } = stateApi;
 
+  // ----------------------------------
+  // Helpers
+  // ----------------------------------
   function action(
     reducerAction: ReducerAction<Id, Value>,
   ): EffectToActionResult<Id, Value> {
@@ -111,6 +114,9 @@ export function createEffectToAction<Id, Value>(
     };
   }
 
+  // ----------------------------------
+  // Returned Function
+  // ----------------------------------
   function effectToAction(
     effectAction: EffectAction<Id, Value>,
     navigation: NavBranch<Id, Value>,
@@ -139,6 +145,72 @@ export function createEffectToAction<Id, Value>(
           : action({
               kind: 'changeCursor',
               cursor: previousCursor,
+            });
+      }
+
+      case 'firstSibling': {
+        if (cursorMethods.isNodeCursor(cursor) && cursor.path.length === 0) {
+          return ignored();
+        }
+
+        const navNode = navigation.children;
+
+        // TODO: Encode the loaded-root invariant in the navigation type.
+        if (navNode === null) {
+          return ignored();
+        }
+
+        const parentPath = cursorMethods.getPath(cursor).slice(0, -1);
+        const parent = navNodeApi.getNodeAtPath(navNode, parentPath);
+
+        if (parent === undefined) {
+          return ignored();
+        }
+
+        const firstSibling = navNodeApi.cursors(parent, parentPath)[0];
+
+        return firstSibling === undefined ||
+          cursorMethods.equal(cursor, firstSibling)
+          ? ignored()
+          : action({
+              kind: 'changeCursor',
+              cursor: firstSibling,
+            });
+      }
+
+      case 'lastSibling': {
+        if (cursorMethods.isNodeCursor(cursor) && cursor.path.length === 0) {
+          return ignored();
+        }
+
+        const navNode = navigation.children;
+
+        // TODO: Encode the loaded-root invariant in the navigation type.
+        if (navNode === null) {
+          return ignored();
+        }
+
+        const parentPath = cursorMethods.getPath(cursor).slice(0, -1);
+        const parent = navNodeApi.getNodeAtPath(navNode, parentPath);
+
+        if (parent === undefined) {
+          return ignored();
+        }
+
+        const lastSibling = navNodeApi
+          .cursors(parent, parentPath)
+          .reverse()
+          .find(
+            (candidate) =>
+              cursorMethods.getPath(candidate).length === parentPath.length + 1,
+          );
+
+        return lastSibling === undefined ||
+          cursorMethods.equal(cursor, lastSibling)
+          ? ignored()
+          : action({
+              kind: 'changeCursor',
+              cursor: lastSibling,
             });
       }
 

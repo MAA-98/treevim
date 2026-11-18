@@ -40,8 +40,8 @@ For example, an initialization script may change shared UI options:
 
 ```js
 treevim.options.set({
-    indentSize: 4,
-    firstIndent: '│ ',
+  indentSize: 4,
+  firstIndent: '│ ',
 });
 ```
 
