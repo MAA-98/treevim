@@ -66,7 +66,7 @@ program
   .option('-i, --input <value>', 'Input for the app at startup.')
   .action(async () => {
     const initialAppOptions = program.opts<InitialAppOptions>();
-    const initialization = await createInitialization(initPath);
+    const initResult = await createInitialization(initPath);
 
     const useAlternateScreen = uiOutput.isTTY === true;
     const stdoutIsInteractive = process.stdout.isTTY === true;
@@ -83,7 +83,7 @@ program
           loadingScreenRenderer={InkLoadingScreen}
           appScreenRenderer={InkAppScreen}
           initialAppOptions={initialAppOptions}
-          initialization={initialization}
+          initResult={initResult}
           {...(stdoutIsInteractive ? {} : { stdout: stdoutWrite })}
           {...(clipboard === undefined ? {} : { clipboard })}
         />,

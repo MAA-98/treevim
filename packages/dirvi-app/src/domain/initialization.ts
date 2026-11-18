@@ -47,3 +47,8 @@ export type Initialization = {
    */
   readonly highlightResolvers: ReadonlyMap<string, HighlightResolver>;
 };
+
+export type InitializationResult = {
+  kind: 'init' | 'default';
+  value: Initialization;
+};

@@ -2,7 +2,7 @@ import { access } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 import type { PublicInitApi } from 'dirvi-apis';
-import type { Initialization } from '@mak-98/dirvi-app';
+import type { InitializationResult } from '@mak-98/dirvi-app';
 import { createInitRuntime } from '@mak-98/dirvi-app';
 import { createNoFileInitialization } from './create-no-file-initialization.js';
 
@@ -31,14 +31,15 @@ import { createNoFileInitialization } from './create-no-file-initialization.js';
  */
 export async function createInitialization(
   initPath: string,
-): Promise<Initialization> {
+): Promise<InitializationResult> {
   // A missing init.mjs means no script registrations. Other access failures are
   // startup errors and must not be treated as a missing configuration file.
   try {
     await access(initPath);
   } catch (error: unknown) {
     if (isFileNotFoundError(error)) {
-      return createNoFileInitialization()
+      const value = createNoFileInitialization()
+      return { kind: 'default', value }
     }
     throw error;
   }
@@ -65,7 +66,8 @@ export async function createInitialization(
 
     // Seal startup registration only after the full init module graph has
     // finished evaluating.
-    return runtime.finish();
+    const value = runtime.finish();
+    return { kind: 'init', value }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
 

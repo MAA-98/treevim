@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { FeedbackType, ShellApi } from 'dirvi-apis';
 import type { AppMethodsApplicator } from 'dirvi-lib';
 
 import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { LoadingScreenRenderer } from './loading-screen-renderer.js';
 import { AppSetup } from './AppSetup.js';
-import type { Initialization } from '../domain/initialization.js';
+import type { Initialization, InitializationResult } from '../domain/initialization.js';
 import { createAppMethodsApplicator } from '../application/create-app-methods.js';
-import type { ShellApi } from 'dirvi-apis';
 
 export type InitialAppOptions = Readonly<{
   /**
@@ -38,7 +38,7 @@ export type ShellAppProps = {
   readonly appScreenRenderer: AppScreenRenderer;
 
   readonly initialAppOptions: InitialAppOptions;
-  readonly initialization: Initialization;
+  readonly initResult: InitializationResult;
 
   /** Request to exit dirvi with an optional message. */
   readonly onQuit: (message?: string) => void;
@@ -59,7 +59,7 @@ export function Shell({
   loadingScreenRenderer,
   appScreenRenderer,
   initialAppOptions,
-  initialization,
+  initResult,
   onQuit,
   stdout,
   clipboard,
@@ -69,7 +69,23 @@ export function Shell({
     appMethodsApplicator: AppMethodsApplicator;
   }>();
   const [appError, setAppError] = useState<Error | undefined>(undefined);
-
+  const [initialMessageForApp, setInitialMessageForApp] = useState<
+    { message: string; type: FeedbackType } | undefined
+  >(
+    initResult.kind === 'default'
+      ? {
+          message:
+            'No init.mjs configuration script found. This is the default app setup.',
+          type: 'error',
+        }
+      : undefined,
+  );
+  const onInitialMessageShown = useCallback(() => {
+    setInitialMessageForApp(undefined);
+  }, []);
+  
+  const initialization = initResult.value
+  
   /**
    * Create the Shell API, based on given {@link Initialization}.
    */
@@ -158,6 +174,10 @@ export function Shell({
       appId={loadedApp.appId}
       initialization={initialization}
       shellApi={shellApi}
+      {...(initialMessageForApp === undefined
+        ? {}
+        : { initialMessage: initialMessageForApp })}
+      onInitialMessageShown={onInitialMessageShown}
       // @ts-ignore
       appMethods={appMethods}
       {...(clipboard === undefined ? {} : { clipboard })}

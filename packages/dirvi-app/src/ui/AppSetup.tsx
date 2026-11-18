@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import type { HighlightResolver, ShellApi } from 'dirvi-apis';
+import type { FeedbackType, HighlightResolver, ShellApi } from 'dirvi-apis';
 import type { AppMethods, State } from 'dirvi-lib';
 import { createTreeMethods } from 'dirvi-lib';
 import {
@@ -11,7 +11,7 @@ import {
 
 import type { LoadingScreenRenderer } from './loading-screen-renderer.js';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
-import type { Initialization } from '../domain/initialization.js';
+import type { Initialization, InitializationResult } from '../domain/initialization.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
 import { App } from './App.js';
 import { defaultConfig } from '../domain/config.js';
@@ -27,6 +27,8 @@ type AppSetupProps<Id, Value> = {
   loadingScreenRenderer: LoadingScreenRenderer;
   appId: string;
   initialization: Initialization;
+  initialMessage?: { message: string; type: FeedbackType };
+  onInitialMessageShown: () => void;
   shellApi: ShellApi;
   appMethods: AppMethods<Id, Value>;
   clipboard?: (value: string) => void;
@@ -53,6 +55,8 @@ export function AppSetup<Id, Value>({
   loadingScreenRenderer,
   appId,
   initialization,
+  initialMessage,
+  onInitialMessageShown,
   shellApi,
   appMethods,
   clipboard,
@@ -85,14 +89,18 @@ export function AppSetup<Id, Value>({
           throw new Error('Cannot create initial app state');
         }
 
-        setLoadState({ status: 'ready', appMethods: appMethods, initialState });
+        setLoadState({
+          status: 'ready',
+          appMethods,
+          initialState
+        });
       } catch (cause: unknown) {
         if (!mounted) {
           return;
         }
 
         const error = cause instanceof Error ? cause : new Error(String(cause));
-        setLoadState({ status: 'error', appMethods: appMethods, error });
+        setLoadState({ status: 'error', appMethods, error });
       }
     }
 
@@ -168,6 +176,8 @@ export function AppSetup<Id, Value>({
       highlightResolver={highlightResolver}
       config={config}
       initialState={loadState.initialState}
+      {...(initialMessage === undefined ? {} : { initialMessage })}
+      onInitialMessageShown={onInitialMessageShown}
       reducer={reducer}
       intentToEffect={intentToEffect}
       effectToAction={effectToAction}

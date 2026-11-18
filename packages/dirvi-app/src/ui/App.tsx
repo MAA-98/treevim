@@ -41,6 +41,11 @@ type AppProps<Id, Value, ViewKey = string> = {
   config: Readonly<Config>;
   highlightResolver: HighlightResolver;
   initialState: State<Id, Value>;
+  initialMessage?: {
+    message: string,
+    type: FeedbackType
+  }
+  onInitialMessageShown: () => void;
   reducer: Reducer<Id, Value>;
   intentToEffect: IntentToEffect<Id, Value>;
   effectToAction: EffectToAction<Id, Value>;
@@ -56,6 +61,8 @@ export function App<Id, Value, ViewKey = string>({
   config,
   highlightResolver,
   initialState,
+  initialMessage,
+  onInitialMessageShown,
   reducer,
   intentToEffect,
   effectToAction,
@@ -148,6 +155,18 @@ export function App<Id, Value, ViewKey = string>({
       }),
     [],
   );
+  
+  const initialMessageShown = useRef(false);
+
+  useEffect(() => {
+    if (initialMessage === undefined || initialMessageShown.current) {
+      return;
+    }
+
+    initialMessageShown.current = true;
+    feedbackApi.addMessage(initialMessage.message, initialMessage.type);
+    onInitialMessageShown();
+  }, [feedbackApi, initialMessage, onInitialMessageShown]);
 
   const appApi = useMemo<AppApi>(
     () => ({
