@@ -38,13 +38,22 @@ Requirements:
 
 ## Usage
 
-Add a starting `init.mjs`, for examples see `examples/`.
-
-Run treevim with:
+Start treevim with:
 
 ```sh
 treevim
 ```
+
+If no `init.mjs` is found, treevim starts the file system app.
+
+Use `:q` to quit. See [Controls](#controls) for more commands.
+
+To customize treevim and use other apps, add an `init.mjs` at:
+
+- `~/.config/treevim/init.mjs` by default, or
+- `$XDG_CONFIG_HOME/treevim/init.mjs` if `XDG_CONFIG_HOME` is set.
+
+`XDG_CONFIG_HOME` must be an absolute path. See `examples/` for starting points.
 
 For command-line options:
 
