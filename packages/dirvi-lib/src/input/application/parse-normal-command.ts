@@ -45,22 +45,22 @@ export function parseNormalCommand<Id, Value>(
             kind: 'incomplete',
           };
     }
-    
+
     // first token is an integer, second token defined
     if (tokens.length !== 2) {
       return {
         kind: 'invalid',
-      }
+      };
     }
     return IntAndTokenToResult<Id, Value>(firstToken.value, secondToken);
   }
-  
+
   if (tokens.length !== 1) {
     return {
       kind: 'invalid',
     };
   }
-  
+
   return singleNonIntegerToken<Id, Value>(firstToken);
 }
 

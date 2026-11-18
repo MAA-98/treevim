@@ -106,12 +106,12 @@ export type EffectAction<Id, Value> =
   | Readonly<{
       effectActionType: 'lastSibling';
     }>
-    | Readonly<{
-    effectActionType: 'previousRootSection';
-  }>
-| Readonly<{
-    effectActionType: 'nextRootSection';
-  }>
+  | Readonly<{
+      effectActionType: 'previousRootSection';
+    }>
+  | Readonly<{
+      effectActionType: 'nextRootSection';
+    }>
   | Readonly<{
       effectActionType: 'navigateToParent';
     }>

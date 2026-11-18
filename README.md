@@ -7,8 +7,8 @@ A standalone, Vim-inspired TUI for navigating and live editing of
 Build extensions in TypeScript/JS to work with different kinds of trees.
 
 Provides a similar extensible editing environment as Vim/Neovim, but for trees
-instead of text buffers. Similar to [`neo-tree`](https://github.com/nvim-neo-tree/neo-tree.nvim.git), 
-but `treevim` is a standalone Node.js app that supports both ordered and unordered 
+instead of text buffers. Similar to [`neo-tree`](https://github.com/nvim-neo-tree/neo-tree.nvim.git),
+but `treevim` is a standalone Node.js app that supports both ordered and unordered
 trees with an API in TypeScript. Easily write commands and plugins with the API documentation.
 
 > Current Status:
@@ -68,7 +68,7 @@ Normal mode is the default mode when `treevim` starts.
 #### Single Key
 
 | Key   | Action                                                                                            |
-|-------|---------------------------------------------------------------------------------------------------|
+| ----- | ------------------------------------------------------------------------------------------------- |
 | Down  | Move to the next navigable entry                                                                  |
 | Up    | Move to the previous navigable entry                                                              |
 | Left  | Move to the parent directory                                                                      |
@@ -86,7 +86,7 @@ root level, as section boundaries.
 #### Multi-key
 
 | Key sequence | Action                                                                                              |
-|--------------|-----------------------------------------------------------------------------------------------------|
+| ------------ | --------------------------------------------------------------------------------------------------- |
 | `zf`         | Add the current entry to the default fold tree at index 0                                           |
 | `zd`         | Remove the current entry from the default fold tree at index 0                                      |
 | `zc`         | Enable the default fold tree at index 0, hiding its entries                                         |
@@ -98,7 +98,7 @@ root level, as section boundaries.
 | `<index>zo`  | Disable the fold tree at `index`, revealing entries not hidden by another enabled fold tree         |
 | `<index>za`  | Toggle whether the fold tree at `index` is enabled                                                  |
 
-Here `<index>` means a positive index entered without angle brackets, such as `2zf`. Index `0` is targeted by the 
+Here `<index>` means a positive index entered without angle brackets, such as `2zf`. Index `0` is targeted by the
 unprefixed commands.
 
 ### Command-line mode
@@ -116,7 +116,7 @@ The status bar displays the command line at the bottom left.
 Currently supported commands:
 
 | Command                | Action                                            |
-|------------------------|---------------------------------------------------|
+| ---------------------- | ------------------------------------------------- |
 | `:q`                   | Quit `treevim`                                    |
 | `:app list`            | List available apps                               |
 | `:app <appId> [input]` | Switch apps, optionally passing startup input     |
@@ -220,13 +220,13 @@ of a project. I use the XML editor for editing LLM context.
 `neo-tree` only really supports unordered tree semantics (like directories)
 but not ordered trees, whereas `treevim` supports both with slightly different UI
 but common controls. This allows using `treevim` for things like XML, ASTs, s-expressions,
-etc. In addition, `treevim` has new concepts like fold trees which add to developer 
+etc. In addition, `treevim` has new concepts like fold trees which add to developer
 ergonomics.
 
 - Why make it a separate app instead of a Vim/Neovim plugin?
 
 1. `neo-tree` already exists, if you only want a directory editor and it works for you,
-   then keep it. 
+   then keep it.
 2. I like to keep my tools independent of each other, keeping Neovim as a focused
    text editor.
 3. Making the init script and APIs in TypeScript has increased the ease with which
@@ -236,13 +236,13 @@ By making it standalone, I do believe it's a better tool in the end than a plugi
 
 - Why write it using TypeScript/React/Ink?
 
-It was the easiest way for me to get started, given I'm not familiar with Lua. It has 
+It was the easiest way for me to get started, given I'm not familiar with Lua. It has
 the consequence of making plugins and scripting very approachable. I plan to make future
 incremental rewrites in Rust.
 
 - What is your AI use policy?
 
-LLMs are used to assist writing function implementations given a natural language 
+LLMs are used to assist writing function implementations given a natural language
 specification. It is never used to design the overall architecture, although suggestions
 from LLMs may be taken into account. Unit tests may be written by LLMs without exposure
 to implementations, property tests are usually handmade with LLM assistance. Contributions

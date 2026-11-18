@@ -32,13 +32,13 @@ the directional navigation may be actually counter-intuitive once we want to add
 navigation.
 
 For example, if we want to add `0` and `$` in a way analogous to Vim, the most intuitive meaning would be to move to the
-first and last child of the current entries' parent, i.e. the siblings of the node. This then implies a metaphor: a 
-line in Vim is a parent's children in `dirvi`. But, that disagrees with `j` going to next entry down rather than 
+first and last child of the current entries' parent, i.e. the siblings of the node. This then implies a metaphor: a
+line in Vim is a parent's children in `dirvi`. But, that disagrees with `j` going to next entry down rather than
 going to next parent's children.
 
 **_Decision:_**
 
-Keep arrow keys as conventional directional navigation, leave `h`, `j`, `k`, `l` for setting later. 
+Keep arrow keys as conventional directional navigation, leave `h`, `j`, `k`, `l` for setting later.
 Add `0` and `$` for moving to the beginning and end of the siblings of the current cursor's node.
 Add most obvious controls first over time, and then fil in the gaps in a way that makes most consistent sense.
 
@@ -56,5 +56,3 @@ section of the UI, meaning it is not overlaying the tree but taking a portion of
 A new message clears previous one. We will add more functionality and configs later on.
 
 ### Navigation 2
-
-

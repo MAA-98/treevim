@@ -5,7 +5,8 @@ import type {
   AppChild,
   AppDefinition,
   CreateAppDefinitionApplicator,
-  NodeKind, NodePresenterOptions,
+  NodeKind,
+  NodePresenterOptions,
 } from 'treevim';
 
 import type { XmlId, XmlNodeValue } from './domain/xml-tree.js';

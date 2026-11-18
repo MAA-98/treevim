@@ -84,7 +84,7 @@ export const createNodePresenter =
             filenameHighlightToken,
           ];
         }
-        
+
         if (id.endsWith('.yaml')) {
           return [
             {
@@ -94,7 +94,7 @@ export const createNodePresenter =
             filenameHighlightToken,
           ];
         }
-        
+
         if (id.endsWith('.xml')) {
           return [
             {
@@ -104,7 +104,7 @@ export const createNodePresenter =
             filenameHighlightToken,
           ];
         }
-        
+
         if (id.endsWith('.zsh')) {
           return [
             {
@@ -114,14 +114,14 @@ export const createNodePresenter =
             filenameHighlightToken,
           ];
         }
-        
+
         if (['.prettierignore', '.prettierrc'].includes(id)) {
           return [
             {
               content: '\ue6b4 ',
               hlToken: 'node.content.icon.prettier',
             },
-            filenameHighlightToken
+            filenameHighlightToken,
           ];
         }
 
