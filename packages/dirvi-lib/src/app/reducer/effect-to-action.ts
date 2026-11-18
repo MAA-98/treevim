@@ -214,6 +214,75 @@ export function createEffectToAction<Id, Value>(
             });
       }
 
+      case 'previousRootSection':
+      case 'nextRootSection': {
+        const navNode = navigation.children;
+
+        // TODO: Encode the loaded-root invariant in the navigation type.
+        if (navNode === null) {
+          return ignored();
+        }
+
+        const positions = navNodeApi.cursors(navNode);
+        const sections = positions.filter(
+          (candidate) => cursorMethods.getPath(candidate).length === 1,
+        );
+
+        if (cursorMethods.isNodeCursor(cursor) && cursor.path.length === 0) {
+          const firstSection =
+            effectAction.effectActionType === 'nextRootSection'
+              ? sections[0]
+              : undefined;
+
+          return firstSection === undefined
+            ? ignored()
+            : action({
+                kind: 'changeCursor',
+                cursor: firstSection,
+              });
+        }
+
+        // Do not navigate from a cursor absent from the current projection.
+        if (
+          !positions.some((candidate) => cursorMethods.equal(candidate, cursor))
+        ) {
+          return ignored();
+        }
+
+        const sectionIndex = sections.findIndex((section) =>
+          cursorMethods.cursorBelongsToSubtree(
+            cursor,
+            cursorMethods.getPath(section),
+          ),
+        );
+
+        if (sectionIndex === -1) {
+          return ignored();
+        }
+
+        const currentSection = sections[sectionIndex];
+
+        if (currentSection === undefined) {
+          return ignored();
+        }
+
+        const targetIndex =
+          effectAction.effectActionType === 'nextRootSection'
+            ? sectionIndex + 1
+            : cursorMethods.equal(cursor, currentSection)
+              ? sectionIndex - 1
+              : sectionIndex;
+
+        const target = sections[targetIndex];
+
+        return target === undefined
+          ? ignored()
+          : action({
+              kind: 'changeCursor',
+              cursor: target,
+            });
+      }
+
       case 'setBranchEntries':
         return action({
           kind: 'updateBranch',

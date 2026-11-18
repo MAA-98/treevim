@@ -5,7 +5,7 @@ import type {
   AppChild,
   AppDefinition,
   CreateAppDefinitionApplicator,
-  NodeKind,
+  NodeKind, NodePresenterOptions,
 } from 'treevim';
 
 import type { XmlId, XmlNodeValue } from './domain/xml-tree.js';
@@ -65,16 +65,14 @@ export const app: CreateAppDefinitionApplicator = (input) => {
       return dom.getDocument();
     },
 
-    createNodePresenter: (
-      _id: XmlId,
-      value: XmlNodeValue,
-      nodeKind: NodeKind,
-    ) => [
-      {
-        content: value.kind,
-        hlToken: nodeKind,
-      },
-    ],
+    createNodePresenter:
+      ({ nerdFonts }: NodePresenterOptions) =>
+      (_id: XmlId, value: XmlNodeValue, nodeKind: NodeKind) => [
+        {
+          content: value.kind,
+          hlToken: nodeKind,
+        },
+      ],
 
     subscribeToResync: createXmlFileResyncSubscription(xmlAbsolutePath),
   } satisfies AppDefinition<XmlId, XmlNodeValue>;

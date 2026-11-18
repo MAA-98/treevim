@@ -43,7 +43,7 @@ export type InvalidInteger = {
 
 export type NavigationCommand = {
   tokenType: 'navigationCommand';
-  value: 'lastSibling';
+  value: 'lastSibling' | 'previousRootSection' | 'nextRootSection';
 };
 
 export type PartialCommand = {
@@ -139,7 +139,19 @@ function tokenizeCommand(reader: NormalBufferReader): Token {
         tokenType: 'navigationCommand',
         value: 'lastSibling',
       };
-    
+
+    case '{':
+      return {
+        tokenType: 'navigationCommand',
+        value: 'previousRootSection',
+      };
+
+    case '}':
+      return {
+        tokenType: 'navigationCommand',
+        value: 'nextRootSection',
+      };
+
     case 'z':
       return tokenizeFoldCommand(reader);
 

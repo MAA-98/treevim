@@ -28,28 +28,19 @@ the bottom as in Neo/Vim.
 **Implications:**
 
 While the arrow keys for directional navigation work as a conventional starting point, naive mapping of `h, j, k, l` to
-the directional navigation starts to actually be counter-intuitive once we want to add more of the standard motions for
+the directional navigation may be actually counter-intuitive once we want to add more of the standard motions for
 navigation.
 
 For example, if we want to add `0` and `$` in a way analogous to Vim, the most intuitive meaning would be to move to the
-first and last child of the current entries' parent. This then implies a metaphor: a line in Vim is a parent's children
-in `dirvi`. But, that disagrees with `j` going to next entry down rather than going to next parent's children.
+first and last child of the current entries' parent, i.e. the siblings of the node. This then implies a metaphor: a 
+line in Vim is a parent's children in `dirvi`. But, that disagrees with `j` going to next entry down rather than 
+going to next parent's children.
 
 **_Decision:_**
 
-Keep arrow keys as conventional directional navigation, for 'normies', but hold to the analogy of
-
-```txt
-The parent's children are a line.
-```
-
-as a guiding principle for Vim-like keybindings. This has immediate consequences:
-
-- `j`, `k` move to next/previous parent's children,
-- `h`, `l` move to next/previous child in current parent, with overflow going to next/previous parent's children, or just
-  the next/previous child in the parent's parent,
-- `0`, `^`, `$` move within the parent's children,
-- `{`, `}` move to the next child of the parent that is not an open branch with children.
+Keep arrow keys as conventional directional navigation, leave `h`, `j`, `k`, `l` for setting later. 
+Add `0` and `$` for moving to the beginning and end of the siblings of the current cursor's node.
+Add most obvious controls first over time, and then fil in the gaps in a way that makes most consistent sense.
 
 ### Feedback 1
 
@@ -63,3 +54,7 @@ Have a section above the status bar for displaying messages. We'll call it the _
 section of the UI, meaning it is not overlaying the tree but taking a portion of the screen, as the status bar.
 
 A new message clears previous one. We will add more functionality and configs later on.
+
+### Navigation 2
+
+

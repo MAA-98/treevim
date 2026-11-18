@@ -12,7 +12,7 @@ but `treevim` is a standalone Node.js app that supports both ordered and unorder
 trees with an API in TypeScript. Easily write commands and plugins with the API documentation.
 
 > Current Status:
-> In beta, breaking API changes common.
+> In beta, designing and implementing new commands and key mappings. Some breaking API changes planned.
 
 ## Goals
 
@@ -67,30 +67,39 @@ Normal mode is the default mode when `treevim` starts.
 
 #### Single Key
 
-| Key         | Action                                                                   |
-| ----------- | ------------------------------------------------------------------------ |
-| `j` / Down  | Move to the next visible entry                                           |
-| `k` / Up    | Move to the previous visible entry                                       |
-| `h` / Left  | Move to the parent directory                                             |
-| `l` / Right | Open or close a directory; send a file path when the cursor is on a file |
-| `:`         | Enter command-line mode                                                  |
-| `Esc`       | Clear a pending command                                                  |
+| Key   | Action                                                                                            |
+|-------|---------------------------------------------------------------------------------------------------|
+| Down  | Move to the next navigable entry                                                                  |
+| Up    | Move to the previous navigable entry                                                              |
+| Left  | Move to the parent directory                                                                      |
+| Right | Open or close a directory                                                                         |
+| `0`   | Move to the first navigable sibling                                                               |
+| `$`   | Move to the last navigable sibling                                                                |
+| `{`   | Move to the start of the current root section, or to the previous section if already at its start |
+| `}`   | Move to the next root section                                                                     |
+| `:`   | Enter command-line mode                                                                           |
+| `Esc` | Clear a pending command                                                                           |
+
+In ordered trees, navigable inline fold markers count as siblings and, at the
+root level, as section boundaries.
 
 #### Multi-key
 
-##### Folds
+| Key sequence | Action                                                                                              |
+|--------------|-----------------------------------------------------------------------------------------------------|
+| `zf`         | Add the current entry to the default fold tree at index 0                                           |
+| `zd`         | Remove the current entry from the default fold tree at index 0                                      |
+| `zc`         | Enable the default fold tree at index 0, hiding its entries                                         |
+| `zo`         | Disable the default fold tree at index 0, revealing entries not hidden by another enabled fold tree |
+| `za`         | Toggle whether the default fold tree at index 0 is enabled                                          |
+| `<index>zf`  | Add the current entry to the fold tree at `index`                                                   |
+| `<index>zd`  | Remove the current entry from the fold tree at `index`                                              |
+| `<index>zc`  | Enable the fold tree at `index`, hiding its entries                                                 |
+| `<index>zo`  | Disable the fold tree at `index`, revealing entries not hidden by another enabled fold tree         |
+| `<index>za`  | Toggle whether the fold tree at `index` is enabled                                                  |
 
-| Key sequence | Action                                                                                      |
-| ------------ | ------------------------------------------------------------------------------------------- |
-| `[index]zf`  | Add the current entry to the fold tree at `index`                                           |
-| `[index]zd`  | Remove the current entry from the fold tree at `index`                                      |
-| `[index]zc`  | Enable the fold tree at `index`, hiding its entries                                         |
-| `[index]zo`  | Disable the fold tree at `index`, revealing entries not hidden by another enabled fold tree |
-| `[index]za`  | Toggle whether the fold tree at `index` is enabled                                          |
-
-`index` is a non-negative fold-tree index. When omitted, it defaults to `0`,
-which is the default fold tree. For example, `2zf` adds the current entry to
-fold tree `2`, while `zc` enables the default fold tree.
+Here `<index>` means a positive index entered without angle brackets, such as `2zf`. Index `0` is targeted by the 
+unprefixed commands.
 
 ### Command-line mode
 
@@ -107,8 +116,10 @@ The status bar displays the command line at the bottom left.
 Currently supported commands:
 
 | Command                | Action                                            |
-| ---------------------- | ------------------------------------------------- |
+|------------------------|---------------------------------------------------|
 | `:q`                   | Quit `treevim`                                    |
+| `:app list`            | List available apps                               |
+| `:app <appId> [input]` | Switch apps, optionally passing startup input     |
 | `:fold list`           | List fold trees in the current view               |
 | `:fold create <name>`  | Create a named fold tree                          |
 | `:fold delete <name>`  | Delete a named fold tree                          |

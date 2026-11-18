@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { TreeNode } from 'dirvi-lib';
 
 // -----------------------------------------------------------------------------
 // Node IDs
@@ -19,7 +18,6 @@ export type XmlId = object & { readonly [xmlIdBrand]: true };
 import type { XmlElement, XmlElementChild, XmlNode } from './xml-doc.js';
 
 export type XmlNodeValue = XmlNode;
-export type XmlTreeNode = TreeNode<XmlId, XmlNodeValue>;
 
 const xmlNameSchema = z.object({
   qualifiedName: z.string(),
