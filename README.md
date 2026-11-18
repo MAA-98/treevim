@@ -3,7 +3,7 @@
 </p>
 
 A standalone, Vim-inspired TUI for navigating and live editing of
-[trees data structures](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>).
+[tree data structures](<https://en.wikipedia.org/wiki/Tree_(abstract_data_type)>).
 Build extensions in TypeScript/JS to work with different kinds of trees.
 
 Provides a similar extensible editing environment as Vim/Neovim, but for trees
