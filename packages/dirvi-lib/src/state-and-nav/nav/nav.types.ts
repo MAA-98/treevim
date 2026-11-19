@@ -123,16 +123,31 @@ export type NavMethods<Id, Value> = {
     path: readonly Id[],
   ): NavEntry<Id, Value> | undefined;
 
+  /**
+   * Returns the cursor for the next navigable entry in UI display order,
+   * or `undefined` if no next cursor can be determined.
+   */
   nextCursor(
     rootNode: NavBranch<Id, Value>,
     cursor: Cursor<Id>,
   ): Cursor<Id> | undefined;
 
+  /**
+   * Returns the cursor for the previous navigable entry in UI display order,
+   * or `undefined` if no previous cursor can be determined.
+   */
   previousCursor(
     rootNode: NavBranch<Id, Value>,
     cursor: Cursor<Id>,
   ): Cursor<Id> | undefined;
 
+  /**
+   * Determines the cursor to move to after a fold change.
+   *
+   * `rootNode` is the navigation projection after the change, and `cursor`
+   * is the cursor from before it. Returns `undefined` if a cursor cannot be
+   * determined.
+   */
   cursorAfterFold(
     rootNode: NavBranch<Id, Value>,
     cursor: Cursor<Id>,

@@ -42,8 +42,8 @@ type FoldTreeResolution =
       message: string;
     }>;
 
-function resolveFoldTreeIndex<Id>(
-  foldsApi: FoldMethods<Id>,
+function resolveFoldTreeIndex<Id, Value>(
+  foldsApi: FoldMethods<Id, Value>,
   folds: Folds<Id>,
   foldTree: FoldTreeReference,
 ): FoldTreeResolution {

@@ -395,6 +395,26 @@ export type TreeMethods<Id, Value> = Readonly<{
   ): TreeNode<Id, Value> | undefined;
 
   /**
+   * Reloads the children of every branch that was loaded in `root`.
+   *
+   * `loadBranches` receives paths relative to `root`; `[]` addresses `root`.
+   * Previously loaded descendant branches are reloaded when they still exist
+   * as branches in their parent's freshly loaded children.
+   *
+   * The supplied root retains its ID and value. Descendant values come from
+   * their parent's freshly loaded children.
+   *
+   * A leaf or unloaded root is returned unchanged. Loader failures and
+   * duplicate sibling IDs reject the returned promise.
+   */
+  reload(
+    root: TreeNode<Id, Value>,
+    loadBranches: (
+      path: readonly Id[],
+    ) => Promise<readonly TreeNode<Id, Value>[]>,
+  ): Promise<TreeNode<Id, Value>>;
+
+  /**
    * Finds the node addressed by a path relative to `root`.
    *
    * An empty path selects `root`. Resolution fails when a path refers to a

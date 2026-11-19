@@ -5,7 +5,7 @@ import { createInitRuntime } from '@mak-98/dirvi-app';
 
 export function createNoFileInitialization(): Initialization {
   const runtime = createInitRuntime();
-  runtime.api.app.initial('fs')
+  runtime.api.app.initial('fs');
   runtime.api.app.register({
     id: 'fs',
     create: async (input) => {
@@ -13,8 +13,8 @@ export function createNoFileInitialization(): Initialization {
       return app(input);
     },
     highlightResolver: (token: string) => {
-      return fsHlRes(token)
-    }
-  })
-  return runtime.finish()
+      return fsHlRes(token);
+    },
+  });
+  return runtime.finish();
 }

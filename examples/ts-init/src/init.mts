@@ -124,5 +124,3 @@ treevim.app.register({
   },
   ex: commonCommands,
 });
-
-

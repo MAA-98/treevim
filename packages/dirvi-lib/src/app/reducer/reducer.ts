@@ -8,8 +8,8 @@ import type { NavMethods } from '../../state-and-nav/index.js';
 import type { State, StateMethods } from '../../state-and-nav/index.js';
 import type { ReducerAction } from './reducer-action.js';
 
-function firstAvailableAdditionalFoldIndex<Id>(
-  foldsApi: FoldMethods<Id>,
+function firstAvailableAdditionalFoldIndex<Id, Value>(
+  foldsApi: FoldMethods<Id, Value>,
   folds: Folds<Id>,
 ): FoldIndex {
   let index = 1;

@@ -1,4 +1,7 @@
-export type { Initialization, InitializationResult } from './domain/initialization.js';
+export type {
+  Initialization,
+  InitializationResult,
+} from './domain/initialization.js';
 export type { ExCommand } from './domain/command.js';
 
 export { createInitRuntime } from './application/init-runtime.js';

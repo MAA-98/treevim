@@ -18,7 +18,7 @@ export type State<Id, Value> = Readonly<{
 
 export type StateMethods<Id, Value> = Readonly<{
   treeMethods: TreeMethods<Id, Value>;
-  foldMethods: FoldMethods<Id>;
+  foldMethods: FoldMethods<Id, Value>;
   cursorMethods: CursorMethods<Id>;
 
   /**

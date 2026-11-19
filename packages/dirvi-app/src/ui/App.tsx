@@ -42,9 +42,9 @@ type AppProps<Id, Value, ViewKey = string> = {
   highlightResolver: HighlightResolver;
   initialState: State<Id, Value>;
   initialMessage?: {
-    message: string,
-    type: FeedbackType
-  }
+    message: string;
+    type: FeedbackType;
+  };
   onInitialMessageShown: () => void;
   reducer: Reducer<Id, Value>;
   intentToEffect: IntentToEffect<Id, Value>;
@@ -155,7 +155,7 @@ export function App<Id, Value, ViewKey = string>({
       }),
     [],
   );
-  
+
   const initialMessageShown = useRef(false);
 
   useEffect(() => {

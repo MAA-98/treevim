@@ -6,7 +6,10 @@ import type { AppMethodsApplicator } from 'dirvi-lib';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { LoadingScreenRenderer } from './loading-screen-renderer.js';
 import { AppSetup } from './AppSetup.js';
-import type { Initialization, InitializationResult } from '../domain/initialization.js';
+import type {
+  Initialization,
+  InitializationResult,
+} from '../domain/initialization.js';
 import { createAppMethodsApplicator } from '../application/create-app-methods.js';
 
 export type InitialAppOptions = Readonly<{
@@ -83,9 +86,9 @@ export function Shell({
   const onInitialMessageShown = useCallback(() => {
     setInitialMessageForApp(undefined);
   }, []);
-  
-  const initialization = initResult.value
-  
+
+  const initialization = initResult.value;
+
   /**
    * Create the Shell API, based on given {@link Initialization}.
    */

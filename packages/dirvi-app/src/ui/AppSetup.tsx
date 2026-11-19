@@ -11,7 +11,10 @@ import {
 
 import type { LoadingScreenRenderer } from './loading-screen-renderer.js';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
-import type { Initialization, InitializationResult } from '../domain/initialization.js';
+import type {
+  Initialization,
+  InitializationResult,
+} from '../domain/initialization.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
 import { App } from './App.js';
 import { defaultConfig } from '../domain/config.js';
@@ -92,7 +95,7 @@ export function AppSetup<Id, Value>({
         setLoadState({
           status: 'ready',
           appMethods,
-          initialState
+          initialState,
         });
       } catch (cause: unknown) {
         if (!mounted) {

@@ -18,7 +18,7 @@ import { createNavTraversalMethods } from './nav.traversal.js';
  */
 export function createOrderedNavMethods<Id, Value>(
   treeMethods: TreeMethods<Id, Value>,
-  foldMethods: FoldMethods<Id>,
+  foldMethods: FoldMethods<Id, Value>,
   cursorMethods: CursorMethods<Id>,
 ): NavMethods<Id, Value> {
   /**

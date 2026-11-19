@@ -55,9 +55,9 @@ function hasUniqueValues<Value>(values: readonly Value[]): boolean {
  * Each fold tree preserves its own hidden-entry definition. An entry is hidden
  * by the aggregate when at least one active fold tree hides it.
  */
-export function createFoldMethods<Id>(
+export function createFoldMethods<Id, Value>(
   foldTreeApi: TreeMethods<Id, HiddenEntryIds<Id>>,
-): FoldMethods<Id> {
+): FoldMethods<Id, Value> {
   function createEmptyFoldTree(rootId: Id): FoldTree<Id> {
     const tree = foldTreeApi.createLoadedBranch(rootId, [], []);
 
@@ -230,6 +230,81 @@ export function createFoldMethods<Id>(
 
     return foldTreeApi.value(tree).length === 0 && children.length === 0;
   }
+  
+  function filterTree(
+    tree: FoldTree<Id>,
+    root: TreeNode<Id, Value>,
+    treeMethods: TreeMethods<Id, Value>,
+  ): FoldTree<Id> {
+    const sourceChildren = treeMethods.getLoadedChildren(root);
+
+    // A leaf or unloaded branch provides no loaded child collection to filter.
+    if (sourceChildren === undefined) {
+      return tree;
+    }
+
+    const foldChildren = getLoadedChildren(tree);
+
+    if (foldChildren === undefined) {
+      throw new Error('Fold trees must contain loaded branch nodes');
+    }
+
+    const childrenById = new Map(
+      [...sourceChildren].map((child) => [treeMethods.id(child), child]),
+    );
+    const hiddenEntryIds = foldTreeApi.value(tree);
+    const filteredIds = hiddenEntryIds.filter((id) => childrenById.has(id));
+    const filteredChildren: FoldTree<Id>[] = [];
+    let childrenChanged = false;
+
+    for (const child of foldChildren) {
+      const sourceChild = childrenById.get(foldTreeApi.id(child));
+
+      if (sourceChild === undefined) {
+        // The source child was deleted, so its fold subtree is stale too.
+        childrenChanged = true;
+        continue;
+      }
+
+      const filteredChild = filterTree(child, sourceChild, treeMethods);
+
+      if (filteredChild !== child) {
+        childrenChanged = true;
+
+        // Preserve the sparse fold-tree representation.
+        if (isEmptyFoldNode(filteredChild) === true) {
+          continue;
+        }
+      }
+
+      filteredChildren.push(filteredChild);
+    }
+
+    if (!childrenChanged && filteredIds.length === hiddenEntryIds.length) {
+      return tree;
+    }
+
+    let updatedTree = tree;
+
+    if (childrenChanged) {
+      const replacement = foldTreeApi.withLoadedChildren(
+        tree,
+        filteredChildren,
+      );
+
+      if (replacement === undefined) {
+        throw new Error('Could not update filtered fold tree');
+      }
+
+      updatedTree = replacement;
+    }
+
+    if (filteredIds.length !== hiddenEntryIds.length) {
+      updatedTree = foldTreeApi.withValue(updatedTree, filteredIds);
+    }
+
+    return updatedTree;
+  }
 
   /**
    * Updates one existing fold-tree node and prunes empty sparse descendants on
@@ -352,7 +427,7 @@ export function createFoldMethods<Id>(
     );
   }
 
-  const api: FoldMethods<Id> = {
+  const api: FoldMethods<Id, Value> = {
     create(rootId, initialPrimaryInfo) {
       return fromData({
         slots: [
@@ -638,6 +713,30 @@ export function createFoldMethods<Id>(
         ...foldData,
         tree: updatedTree,
       });
+    },
+
+    filter(folds, root, treeMethods) {
+      let result = folds;
+
+      for (const index of api.indexes(folds)) {
+        const foldData = getSlotAtIndex(folds, index);
+
+        if (foldData === undefined) {
+          continue;
+        }
+
+        if (foldTreeApi.id(foldData.tree) !== treeMethods.id(root)) {
+          throw new Error('Fold tree root does not match source tree root');
+        }
+
+        const tree = filterTree(foldData.tree, root, treeMethods);
+
+        if (tree !== foldData.tree) {
+          result = withSlotAtIndex(result, index, { ...foldData, tree });
+        }
+      }
+
+      return result;
     },
 
     toModel(folds) {

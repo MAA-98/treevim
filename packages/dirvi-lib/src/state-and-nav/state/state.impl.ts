@@ -39,159 +39,14 @@ function createState<Id, Value>(data: StateData<Id, Value>): State<Id, Value> {
 // StateApi Init
 // =============================================================================
 
-type ReloadResult<Id, Value> = Readonly<{
-  root: TreeNode<Id, Value>;
-}>;
-
 /**
  * Creates operations for navigating and resynchronizing tree-surfer state.
  */
 export function createStateApi<Id, Value>(
-  treeNodeApi: TreeMethods<Id, Value>,
-  foldsApi: FoldMethods<Id>,
+  treeMethods: TreeMethods<Id, Value>,
+  foldsApi: FoldMethods<Id, Value>,
   cursorApi: CursorMethods<Id>,
 ): StateMethods<Id, Value> {
-  /**
-   * Reloads one node's direct children and recursively reloads descendant
-   * branches that were open in the old state.
-   *
-   * The node itself retains its existing application value. The supplied
-   * loader refreshes only its direct child collection.
-   *
-   * A branch that was previously closed remains closed: its children were not
-   * loaded in the old state, so there is no descendant loading state to
-   * preserve or refresh.
-   */
-  async function reload(
-    oldRoot: TreeNode<Id, Value>,
-    parentPath: readonly Id[],
-    loadBranches: (
-      path: readonly Id[],
-    ) => Promise<readonly TreeNode<Id, Value>[]>,
-  ): Promise<ReloadResult<Id, Value>> {
-    const oldChildren = treeNodeApi.getLoadedChildren(oldRoot);
-
-    /*
-     * The old node was either a leaf or a closed branch. In either case, it
-     * had no loaded child collection to resynchronize.
-     */
-    if (oldChildren === undefined) {
-      return { root: oldRoot };
-    }
-
-    const loadedChildren = await loadBranches(parentPath);
-
-    /*
-     * `withChildren` retains oldRoot's ID and application value, replacing
-     * only its structural child collection.
-     *
-     * Failure means the loader supplied duplicate sibling IDs, violating the
-     * TreeNodeApi contract. This is a loader/data-integrity error rather than
-     * an ordinary missing-path condition.
-     */
-    let newRoot = treeNodeApi.withLoadedChildren(oldRoot, loadedChildren);
-
-    if (newRoot === undefined) {
-      throw new Error(
-        'Cannot resync tree: loaded branch contains duplicate sibling IDs',
-      );
-    }
-
-    /*
-     * Recurse only into entries that were open in the old state and which
-     * still exist in the freshly loaded child collection.
-     *
-     * This preserves fresh values from loaded children while restoring their
-     * previously loaded descendant collections.
-     */
-    for (const oldEntry of oldChildren) {
-      const oldEntryChildren = treeNodeApi.getLoadedChildren(oldEntry);
-
-      /*
-       * A leaf or closed branch did not have loaded descendants in old state.
-       */
-      if (oldEntryChildren === undefined) {
-        continue;
-      }
-
-      const oldEntryId = treeNodeApi.id(oldEntry);
-      const currentChildren = treeNodeApi.getLoadedChildren(newRoot);
-
-      if (currentChildren === undefined) {
-        throw new Error(
-          'Cannot resync tree: replacement root unexpectedly has no children',
-        );
-      }
-
-      const currentChildrenArray = [...currentChildren];
-
-      const currentChildIndex = currentChildrenArray.findIndex(
-        (child) => treeNodeApi.id(child) === oldEntryId,
-      );
-
-      if (currentChildIndex === -1) {
-        continue;
-      }
-
-      const currentChild = currentChildrenArray[currentChildIndex];
-
-      if (currentChild === undefined) {
-        continue;
-      }
-
-      if (treeNodeApi.kind(currentChild) === 'leaf') {
-        continue;
-      }
-
-      const reloadedChild = await reload(
-        oldEntry,
-        [...parentPath, oldEntryId],
-        loadBranches,
-      );
-
-      const reloadedGrandchildren = treeNodeApi.getLoadedChildren(
-        reloadedChild.root,
-      );
-
-      if (reloadedGrandchildren === undefined) {
-        throw new Error(
-          'Cannot resync tree: reloaded open branch has no children',
-        );
-      }
-
-      const updatedCurrentChild = treeNodeApi.withLoadedChildren(
-        currentChild,
-        reloadedGrandchildren,
-      );
-
-      if (updatedCurrentChild === undefined) {
-        throw new Error(
-          'Cannot resync tree: reloaded descendants contain duplicate sibling IDs',
-        );
-      }
-
-      const updatedChildren = [...currentChildrenArray];
-      updatedChildren[currentChildIndex] = updatedCurrentChild;
-
-      const updatedRoot = treeNodeApi.withLoadedChildren(
-        newRoot,
-        updatedChildren,
-      );
-
-      if (updatedRoot === undefined) {
-        throw new Error(
-          'Cannot resync tree: updated branch contains duplicate sibling IDs',
-        );
-      }
-
-      newRoot = updatedRoot;
-    }
-
-    return {
-      root: newRoot,
-    };
-  }
-
   /**
    * Determines the cursor after resynchronization.
    *
@@ -214,12 +69,12 @@ export function createStateApi<Id, Value>(
   }
 
   return {
-    treeMethods: treeNodeApi,
+    treeMethods,
     foldMethods: foldsApi,
     cursorMethods: cursorApi,
 
     create(root, folds, cursor) {
-      return treeNodeApi.kind(root) === 'loaded-branch'
+      return treeMethods.kind(root) === 'loaded-branch'
         ? createState({ root, folds, cursor })
         : undefined;
     },
@@ -242,7 +97,7 @@ export function createStateApi<Id, Value>(
       const folds = changes.folds ?? data.folds;
       const cursor = changes.cursor ?? data.cursor;
 
-      if (treeNodeApi.kind(root) !== 'loaded-branch') {
+      if (treeMethods.kind(root) !== 'loaded-branch') {
         return undefined;
       }
 
@@ -268,7 +123,7 @@ export function createStateApi<Id, Value>(
         return undefined;
       }
 
-      return treeNodeApi.selectAtPath(root, cursor.path, (node) => node);
+      return treeMethods.selectAtPath(root, cursor.path, (node) => node);
     },
 
     isCursorRoot(state) {
@@ -285,19 +140,16 @@ export function createStateApi<Id, Value>(
 
     async resync(oldState, loadBranches) {
       const oldStateData = getStateData(oldState);
-      const reloaded = await reload(oldStateData.root, [], loadBranches);
-
-      /*
-       * Fold-state resynchronization is not implemented yet. Keep the existing
-       * fold definitions while the source tree is reloaded.
-       */
-      const folds = oldStateData.folds;
-      const root = reloaded.root;
+      const reloadedRoot = await treeMethods.reload(
+        oldStateData.root,
+        loadBranches,
+      );
+      const folds = foldsApi.filter(oldStateData.folds, reloadedRoot, treeMethods);
 
       return createState({
-        root,
+        root: reloadedRoot,
         folds,
-        cursor: resyncCursor(oldState, root, folds),
+        cursor: resyncCursor(oldState, reloadedRoot, folds),
       });
     },
   };

@@ -38,8 +38,8 @@ export async function createInitialization(
     await access(initPath);
   } catch (error: unknown) {
     if (isFileNotFoundError(error)) {
-      const value = createNoFileInitialization()
-      return { kind: 'default', value }
+      const value = createNoFileInitialization();
+      return { kind: 'default', value };
     }
     throw error;
   }
@@ -67,7 +67,7 @@ export async function createInitialization(
     // Seal startup registration only after the full init module graph has
     // finished evaluating.
     const value = runtime.finish();
-    return { kind: 'init', value }
+    return { kind: 'init', value };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
 

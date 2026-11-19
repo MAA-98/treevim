@@ -177,6 +177,138 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
     return isLoadedBranchData(data) ? data.children : undefined;
   }
 
+  /**
+   * Reloads one node's direct children and recursively reloads descendant
+   * branches that were loaded in the old state.
+   *
+   * The node itself retains its existing application value. The supplied
+   * loader refreshes only its direct child collection.
+   *
+   * Previously unloaded branches are not recursively reloaded.
+   */
+  async function reload(
+    oldRoot: TreeNode<Id, Value>,
+    parentPath: readonly Id[],
+    loadBranches: (
+      path: readonly Id[],
+    ) => Promise<readonly TreeNode<Id, Value>[]>,
+  ): Promise<TreeNode<Id, Value>> {
+    const oldChildren = methods.getLoadedChildren(oldRoot);
+
+    /*
+     * The old node was either a leaf or a closed branch. In either case, it
+     * had no loaded child collection to resynchronize.
+     */
+    if (oldChildren === undefined) {
+      return oldRoot;
+    }
+
+    const loadedChildren = await loadBranches(parentPath);
+
+    /*
+     * `withLoadedChildren` retains oldRoot's ID and application value, replacing
+     * only its structural child collection.
+     *
+     * Failure means the loader supplied duplicate sibling IDs, violating the
+     * methods contract. This is a loader/data-integrity error rather than
+     * an ordinary missing-path condition.
+     */
+    let newRoot = methods.withLoadedChildren(oldRoot, loadedChildren);
+
+    if (newRoot === undefined) {
+      throw new Error(
+        'Cannot resync tree: loaded branch contains duplicate sibling IDs',
+      );
+    }
+
+    /*
+     * Recurse only into entries that were open in the old state and which
+     * still exist in the freshly loaded child collection.
+     *
+     * This preserves fresh values from loaded children while restoring their
+     * previously loaded descendant collections.
+     */
+    for (const oldEntry of oldChildren) {
+      const oldEntryChildren = methods.getLoadedChildren(oldEntry);
+
+      /*
+       * A leaf or closed branch did not have loaded descendants in old state.
+       */
+      if (oldEntryChildren === undefined) {
+        continue;
+      }
+
+      const oldEntryId = methods.id(oldEntry);
+      const currentChildren = methods.getLoadedChildren(newRoot);
+
+      if (currentChildren === undefined) {
+        throw new Error(
+          'Cannot resync tree: replacement root unexpectedly has no children',
+        );
+      }
+
+      const currentChildrenArray = [...currentChildren];
+
+      const currentChildIndex = currentChildrenArray.findIndex(
+        (child) => methods.id(child) === oldEntryId,
+      );
+
+      if (currentChildIndex === -1) {
+        continue;
+      }
+
+      const currentChild = currentChildrenArray[currentChildIndex];
+
+      if (currentChild === undefined) {
+        continue;
+      }
+
+      if (methods.kind(currentChild) === 'leaf') {
+        continue;
+      }
+
+      const reloadedChild = await reload(
+        oldEntry,
+        [...parentPath, oldEntryId],
+        loadBranches,
+      );
+
+      const reloadedGrandchildren = methods.getLoadedChildren(reloadedChild);
+
+      if (reloadedGrandchildren === undefined) {
+        throw new Error(
+          'Cannot resync tree: reloaded open branch has no children',
+        );
+      }
+
+      const updatedCurrentChild = methods.withLoadedChildren(
+        currentChild,
+        reloadedGrandchildren,
+      );
+
+      if (updatedCurrentChild === undefined) {
+        throw new Error(
+          'Cannot resync tree: reloaded descendants contain duplicate sibling IDs',
+        );
+      }
+
+      const updatedChildren = [...currentChildrenArray];
+      updatedChildren[currentChildIndex] = updatedCurrentChild;
+
+      const updatedRoot = methods.withLoadedChildren(newRoot, updatedChildren);
+
+      if (updatedRoot === undefined) {
+        throw new Error(
+          'Cannot resync tree: updated branch contains duplicate sibling IDs',
+        );
+      }
+
+      newRoot = updatedRoot;
+    }
+
+    return newRoot;
+  }
+
   const methods: TreeMethods<Id, Value> = {
     createLeaf(id, value) {
       return fromData(createLeafData(id, value));
@@ -305,6 +437,11 @@ export function createTreeMethods<Id, Value>(): TreeMethods<Id, Value> {
       return fromData(
         createLoadedBranchData(data.id, data.value, copiedChildren),
       );
+    },
+
+    async reload(root, loadBranches) {
+      const reloaded = await reload(root, [], loadBranches);
+      return reloaded;
     },
 
     findAtPath(root, path) {

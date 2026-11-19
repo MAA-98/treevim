@@ -1,4 +1,5 @@
 import type { FoldSlotModel, FoldsModel } from './fold-node.model.js';
+import type { TreeMethods, TreeNode } from '../tree/index.js';
 
 declare const foldsBrand: unique symbol;
 
@@ -44,7 +45,7 @@ export type Folds<Id> = {
   };
 };
 
-export type FoldMethods<Id> = Readonly<{
+export type FoldMethods<Id, Value> = Readonly<{
   /**
    * Creates Folds with its required primary fold tree in slot zero.
    *
@@ -268,6 +269,25 @@ export type FoldMethods<Id> = Readonly<{
     index: FoldIndex,
     path: readonly Id[],
   ): Folds<Id> | undefined;
+
+  /**
+   * Filters fold entries against the loaded portions of `root`.
+   *
+   * For each loaded branch, removes fold entries for direct children absent
+   * from that branch, including any fold data beneath those entries.
+   *
+   * Does not remove fold entries merely because they are beneath an unloaded
+   * branch: those children have not been checked and may still exist.
+   *
+   * Preserves fold-tree names, indexes, metadata, and active states.
+   *
+   * Throws if a fold tree's root ID differs from the source root ID.
+   */
+  filter(
+    folds: Folds<Id>,
+    root: TreeNode<Id, Value>,
+    treeMethods: TreeMethods<Id, Value>,
+  ): Folds<Id>;
 
   /**
    * Converts opaque runtime folds into a serializable fold-state model.

@@ -48,7 +48,11 @@ export function createAppMethods<Id, Value>(
         foldMethods,
         cursorMethods,
       )
-    : createUnorderedNavMethods(treeMethods, foldMethods, cursorMethods);
+    : createUnorderedNavMethods<Id, Value>(
+        treeMethods,
+        foldMethods,
+        cursorMethods,
+      );
 
   async function loadChildren(path: readonly Id[]) {
     const children = await appDefinition.loadChildren(path);
