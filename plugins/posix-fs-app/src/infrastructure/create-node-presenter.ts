@@ -205,8 +205,8 @@ export const createNodePresenter =
         }
         return [
           {
-            content: '  ',
-            hlToken: 'node.content.padding',
+            content: '\uf44c ',
+            hlToken: 'node.content.icon.link',
           },
           ...symlinkNameHighlightTokens,
         ];
