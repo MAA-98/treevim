@@ -138,6 +138,73 @@ export function createNavTraversalMethods<Id, Value>(
     ];
   }
 
+  /**
+   * Selects a navigable cursor after resynchronization.
+   *
+   * At each level, prefers the current cursor, then the first surviving old
+   * sibling after it, then the first surviving old sibling before it.
+   * If none survives, repeats the same checks from the parent.
+   */
+  function cursorAfterResync(
+    oldRootNode: NavBranch<Id, Value>,
+    newRootNode: NavBranch<Id, Value>,
+    cursor: Cursor<Id>,
+  ): Cursor<Id> {
+    const newPositions = rootCursors(newRootNode);
+    const survives = (candidate: Cursor<Id>) =>
+      newPositions.some((position) => cursorMethods.equal(position, candidate));
+
+    function select(candidate: Cursor<Id>): Cursor<Id> {
+      if (survives(candidate)) {
+        return candidate;
+      }
+
+      if (
+        cursorMethods.isNodeCursor(candidate) &&
+        candidate.path.length === 0
+      ) {
+        return { path: [] };
+      }
+
+      const parentPath = cursorMethods.isNodeCursor(candidate)
+        ? candidate.path.slice(0, -1)
+        : candidate.parentPath;
+      const parentCursor: Cursor<Id> = { path: [...parentPath] };
+
+      const oldParent =
+        oldRootNode.children === null
+          ? undefined
+          : getNodeAtPath(oldRootNode.children, parentPath);
+
+      if (oldParent === undefined) {
+        return select(parentCursor);
+      }
+
+      // `cursors` also includes descendants; retain only direct siblings.
+      const siblings = cursors(oldParent, parentPath).filter((sibling) =>
+        cursorMethods.isNodeCursor(sibling)
+          ? sibling.path.length === parentPath.length + 1
+          : sibling.parentPath.length === parentPath.length,
+      );
+
+      const currentIndex = siblings.findIndex((sibling) =>
+        cursorMethods.equal(sibling, candidate),
+      );
+
+      if (currentIndex === -1) {
+        return select(parentCursor);
+      }
+
+      return (
+        siblings.slice(currentIndex + 1).find(survives) ??
+        siblings.slice(0, currentIndex).reverse().find(survives) ??
+        select(parentCursor)
+      );
+    }
+
+    return select(cursor);
+  }
+
   function nextCursor(
     rootNode: NavBranch<Id, Value>,
     cursor: Cursor<Id>,
@@ -309,9 +376,10 @@ export function createNavTraversalMethods<Id, Value>(
     getEntryAtPath,
     nextCursor,
     previousCursor,
-    cursorAfterFold,
     parentCursor,
     cursors,
     visiblePaths,
+    cursorAfterFold,
+    cursorAfterResync,
   };
 }

@@ -51,14 +51,6 @@ export function createStateApi<Id, Value>(
    * Determines the cursor after resynchronization.
    *
    * Current policy: return the root cursor.
-   *
-   * Future policy:
-   *
-   * 1. Keep the exact cursor if it survives.
-   * 2. Otherwise choose the deepest surviving ancestor.
-   * 3. Otherwise choose the nearest preceding surviving cursor.
-   * 4. Otherwise choose the first valid cursor.
-   * 5. If no entry cursor exists, use the root cursor.
    */
   function resyncCursor(
     _oldState: State<Id, Value>,
@@ -136,21 +128,6 @@ export function createStateApi<Id, Value>(
       const { cursor } = getStateData(state);
 
       return cursorApi.getPath(cursor);
-    },
-
-    async resync(oldState, loadBranches) {
-      const oldStateData = getStateData(oldState);
-      const reloadedRoot = await treeMethods.reload(
-        oldStateData.root,
-        loadBranches,
-      );
-      const folds = foldsApi.filter(oldStateData.folds, reloadedRoot, treeMethods);
-
-      return createState({
-        root: reloadedRoot,
-        folds,
-        cursor: resyncCursor(oldState, reloadedRoot, folds),
-      });
     },
   };
 }

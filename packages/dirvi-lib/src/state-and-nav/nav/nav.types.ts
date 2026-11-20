@@ -154,6 +154,30 @@ export type NavMethods<Id, Value> = {
   ): Cursor<Id> | undefined;
 
   /**
+   * Selects a navigable cursor after resynchronization using the old and new
+   * projections.
+   *
+   * At each level, tries the following in order:
+   *
+   * 1. The current cursor, if it remains navigable.
+   * 2. The first surviving old sibling after it.
+   * 3. The nearest surviving old sibling before it.
+   * 4. The parent cursor, repeating these checks at the parent level.
+   *
+   * A sibling survives if its exact cursor is navigable in the new projection.
+   * If no other candidate survives, returns the root cursor.
+   *
+   * @param oldRootNode - Navigation projection before resynchronization.
+   * @param newRootNode - Navigation projection after resynchronization.
+   * @param cursor - Cursor from before resynchronization.
+   */
+  cursorAfterResync(
+    oldRootNode: NavBranch<Id, Value>,
+    newRootNode: NavBranch<Id, Value>,
+    cursor: Cursor<Id>,
+  ): Cursor<Id>;
+
+  /**
    * Returns undefined if at the root already, i.e. cursor is [].
    * @param navigation
    * @param cursor

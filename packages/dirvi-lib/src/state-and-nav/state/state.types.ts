@@ -69,22 +69,4 @@ export type StateMethods<Id, Value> = Readonly<{
    * This does not check visibility in a navigation projection.
    */
   getNodeAtCursor(state: State<Id, Value>): TreeNode<Id, Value> | undefined;
-
-  /**
-   * Reloads the root's children and all descendant branches that were loaded
-   * in the previous state.
-   *
-   * `loadBranches([])` loads the root's direct children.
-   * `loadBranches(['src'])` loads the children of `src`, where `src` is the
-   * ID of a root child.
-   *
-   * Returned nodes must be valid TreeNode values created or decoded through
-   * the specialized TreeNodeApi for `Id` and `Value`.
-   */
-  resync(
-    oldState: State<Id, Value>,
-    loadBranches: (
-      path: readonly Id[],
-    ) => Promise<readonly TreeNode<Id, Value>[]>,
-  ): Promise<State<Id, Value>>;
 }>;

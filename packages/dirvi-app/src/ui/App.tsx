@@ -31,6 +31,7 @@ import { createFeedbackApi, userInputToIntent } from 'dirvi-lib';
 import { useView } from './hooks/useView.js';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
+import { createResync } from '../application/create-resync.js';
 
 type AppProps<Id, Value, ViewKey = string> = {
   screenRenderer: AppScreenRenderer;
@@ -114,12 +115,12 @@ export function App<Id, Value, ViewKey = string>({
   // ===========================================================================
   useEffect(() => {
     let active = true;
+    const resync = createResync(appMethods.stateMethods, appMethods.navMethods);
 
     const unsubscribe = appMethods.subscribeToResync(() => {
       const oldState = stateRef.current;
-
-      void appMethods.stateMethods
-        .resync(oldState, appMethods.loadChildren)
+      
+      void resync(oldState, appMethods.loadChildren)
         .then((newState) => {
           if (!active) {
             return;
