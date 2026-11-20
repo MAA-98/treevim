@@ -60,7 +60,7 @@ const initPath = join(treevimConfigDirectory, 'init.mjs');
 program
   .name('treevim')
   .description('View and manage trees.')
-  .version('0.1.0-beta.5')
+  .version('0.1.0-beta.6')
   .helpOption('--help')
   .option('-a, --app <id>', 'App name to open at startup.')
   .option('-i, --input <value>', 'Input for the app at startup.')

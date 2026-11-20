@@ -8,14 +8,14 @@ a label, not a private staging area.
 
 ## 1. Choose the version
 
-Choose an unpublished version, for example `0.1.0-beta.5`. A beta version
+Choose an unpublished version, for example `0.1.0-beta.6`. A beta version
 number can be published under the `candidate` tag first; the version number
 and npm tag are separate things.
 
 Set it in your shell for the commands below:
 
 ```sh
-version="0.1.0-beta.5"
+version="0.1.0-beta.6"
 ```
 
 If you return to this guide in a new shell, set `version` again.

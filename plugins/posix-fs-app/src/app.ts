@@ -2,11 +2,9 @@ import { basename, join } from 'node:path';
 
 import type {
   CreateAppDefinitionApplicator,
-  NodeKind,
-  NodePresenterOptions,
 } from 'treevim';
 
-import type { PosixValue, PosixId } from './domain/posix-tree.js';
+import type { PosixId } from './domain/posix-tree.js';
 import { posixFilenameSchema, posixValueSchema } from './domain/posix-tree.js';
 import { createFsResyncSubscription } from './infrastructure/load-node-posix-app-api.js';
 import { getUnixAbsPath } from './infrastructure/get-unix-abs-path.js';

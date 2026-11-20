@@ -155,18 +155,18 @@ export const createNodePresenter =
       }
 
       case 'directory': {
-        const foldernameHighlightTokens = [
+        const folderNameHighlightTokens = [
           {
             content: id,
             hlToken: 'node.content.directory.name',
           },
           {
             content: '/',
-            hlToken: 'node.content.directory.slash',
+            hlToken: 'node.content.directory.slashSign',
           },
         ];
         if (!nerdFonts) {
-          return foldernameHighlightTokens;
+          return folderNameHighlightTokens;
         }
 
         if (id === '.git') {
@@ -175,7 +175,7 @@ export const createNodePresenter =
               content: '\udb80\udea2 ',
               hlToken: 'node.content.icon.git-logo',
             },
-            ...foldernameHighlightTokens,
+            ...folderNameHighlightTokens,
           ];
         }
 
@@ -184,25 +184,31 @@ export const createNodePresenter =
             content: '\uf07b ',
             hlToken: 'node.content.icon.folder',
           },
-          ...foldernameHighlightTokens,
+          ...folderNameHighlightTokens,
         ];
       }
 
       case 'symlink': {
-        const symlinkName = {
-          content: id,
-          hlToken: 'node.content.symlink.name',
-        };
+        const symlinkNameHighlightTokens = [
+          {
+            content: id,
+            hlToken: 'node.content.symlink.name',
+          },
+          {
+            content: `@`,
+            hlToken: 'node.content.symlink.atSign'
+          }
+        ];
 
         if (!nerdFonts) {
-          return [symlinkName];
+          return symlinkNameHighlightTokens;
         }
         return [
           {
             content: '  ',
             hlToken: 'node.content.padding',
           },
-          symlinkName,
+          ...symlinkNameHighlightTokens,
         ];
       }
     }

@@ -1,75 +1,22 @@
 import { watch, type FSWatcher } from 'node:fs';
 
-// ---*--- App Data ---*---
-
-// Paths for app data:
-// const environmentPaths = envPaths('treevim');
-// const posixAppDataDirectory = join(environmentPaths.data, 'apps', 'posix');
-// const posixAppViewsDirectory = join(posixAppDataDirectory, 'views');
-//
-// // Helpers for saving app data:
-// function encodeKey(key: UnixAbsolutePath): string {
-//   return createHash('sha256').update(key).digest('hex');
-// }
-//
-// /**
-//  * Persists public POSIX state models while keeping TreeNode and Folds runtime
-//  * representations opaque.
-//  */
-// const posixStateCodec: StateCodec<PosixId, PosixValue, PosixStateModel> = {
-//   schema: PosixStateModelSchema,
-//   encode: encodePosixState,
-//   decode: decodePosixState,
-// };
-//
-// /**
-//  * Converts opaque POSIX runtime state into its serializable persistence model.
-//  */
-// function encodePosixState(state: PosixState): PosixStateModel {
-//   return {
-//     root: PosixTreeNodeApi.toModel(state.root),
-//     folds: PosixFoldsApi.toModel(state.folds),
-//     cursor: PosixCursorApi.getPath(state.cursor),
-//   };
-// }
-//
-// /**
-//  * Restores opaque POSIX runtime state from a schema-validated model.
-//  *
-//  * `TreeNodeApi.fromModel` performs the structural sibling-ID uniqueness check
-//  * which cannot be fully expressed by the JSON/Zod model schema.
-//  */
-// function decodePosixState(model: PosixStateModel): PosixState | undefined {
-//   const root = PosixTreeNodeApi.fromModel(model.root);
-//
-//   /*
-//    * State requires an open root branch. The POSIX domain additionally requires
-//    * files and symlinks to be leaves, and directories to be branches.
-//    */
-//   if (
-//     root === undefined ||
-//     !PosixTreeNode.isValid(root) ||
-//     PosixTreeNodeApi.kind(root) !== 'loaded-branch'
-//   ) {
-//     return undefined;
-//   }
-//
-//   const folds = PosixFoldsApi.fromModel(model.folds);
-//
-//   if (folds === undefined) {
-//     return undefined;
-//   }
-//
-//   return {
-//     root,
-//     folds,
-//     cursor: PosixCursorApi.getPath(model.cursor),
-//   };
-// }
-
-// `recursive: true` is supported by macOS and Windows, but
-// recursive watching is not supported on all Node/POSIX
-// platforms: Linux unsupported.
+/**
+ * Creates a resync subscription for a directory and its descendants.
+ *
+ * The first listener starts a recursive filesystem watcher, which is shared
+ * by all listeners. Filesystem events are debounced: after 100 ms without
+ * another event, each listener is called to request a resync. The event type
+ * and filename are ignored; this function does not reload entries itself.
+ *
+ * The returned subscribe function provides an unsubscribe function for each
+ * listener. When the last listener unsubscribes, the watcher is closed and
+ * any pending notification is canceled.
+ *
+ * Watcher errors are ignored; they do not trigger a resync notification.
+ *
+ * @param directory - Directory to watch recursively.
+ * @returns A function that subscribes a listener and returns an unsubscribe function.
+ */
 export function createFsResyncSubscription(
   directory: string,
 ): (listener: () => void) => () => void {
