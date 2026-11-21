@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
 
-import type { Config } from 'dirvi-apis';
+import type { HighlightStyle } from 'dirvi-apis';
 import { colorConfigToInkColor } from '@mak-98/dirvi-app';
 import type { InputModeState } from 'dirvi-lib';
 
@@ -8,18 +8,29 @@ export const STATUS_BAR_HEIGHT = 1;
 
 type StatusBarProps = {
   inputState: InputModeState;
-  config: Config;
+  highlight: HighlightStyle | undefined;
 };
 
-export function StatusBar({ inputState, config }: StatusBarProps) {
+export function StatusBar({ inputState, highlight }: StatusBarProps) {
   const inputMode = inputState.inputMode;
-  const commandColor = colorConfigToInkColor(config.theme.statusBar.command.fg);
-  const normalColor = colorConfigToInkColor(config.theme.statusBar.normal.fg);
-  const backgroundColor = colorConfigToInkColor(
-    inputMode === 'command'
-      ? config.theme.statusBar.command.bg
-      : config.theme.statusBar.normal.bg,
-  );
+
+  const color =
+    highlight?.fg === undefined
+      ? undefined
+      : colorConfigToInkColor(highlight.fg);
+  const backgroundColor =
+    highlight?.bg === undefined
+      ? undefined
+      : colorConfigToInkColor(highlight.bg);
+
+  const textStyle = {
+    ...(color === undefined ? {} : { color }),
+    ...(highlight?.bold === undefined ? {} : { bold: highlight.bold }),
+    ...(highlight?.italic === undefined ? {} : { italic: highlight.italic }),
+    ...(highlight?.underline === undefined
+      ? {}
+      : { underline: highlight.underline }),
+  };
 
   return (
     <Box
@@ -31,13 +42,13 @@ export function StatusBar({ inputState, config }: StatusBarProps) {
       backgroundColor={backgroundColor}
     >
       <Box flexShrink={1}>
-        <Text color={commandColor} wrap="truncate-end">
+        <Text {...textStyle} wrap="truncate-end">
           {inputMode === 'command' ? inputState.commandLine : ''}
         </Text>
       </Box>
 
       <Box flexShrink={1}>
-        <Text color={normalColor} wrap="truncate-start">
+        <Text {...textStyle} wrap="truncate-start">
           {inputMode === 'normal' ? inputState.normalBuffer : ''}
         </Text>
       </Box>

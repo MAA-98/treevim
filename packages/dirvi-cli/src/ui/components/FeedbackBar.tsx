@@ -1,30 +1,29 @@
 import { Box, Text } from 'ink';
 
-import type { Config, FeedbackType } from 'dirvi-apis';
+import type { HighlightStyle } from 'dirvi-apis';
 import { colorConfigToInkColor } from '@mak-98/dirvi-app';
 
 import type { FeedbackDisplay } from '../helpers/feedback-display.js';
+import { config } from 'zod';
 
 type FeedbackBarProps = {
   display: FeedbackDisplay;
-  type: FeedbackType;
-  config: Config;
+  highlight: HighlightStyle | undefined;
 };
 
-export function FeedbackBar({ display, type, config }: FeedbackBarProps) {
+export function FeedbackBar({ display, highlight }: FeedbackBarProps) {
   if (display.height === 0) {
     return null;
   }
 
-  const highlight =
-    type === 'success'
-      ? config.theme.feedbackBar.success
-      : type === 'error'
-        ? config.theme.feedbackBar.error
-        : config.theme.feedbackBar.message;
-
-  const color = colorConfigToInkColor(highlight.fg);
-  const backgroundColor = colorConfigToInkColor(highlight.bg);
+  const color =
+    highlight?.fg === undefined
+      ? undefined
+      : colorConfigToInkColor(highlight.fg);
+  const backgroundColor =
+    highlight?.bg === undefined
+      ? undefined
+      : colorConfigToInkColor(highlight.bg);
 
   return (
     <Box
@@ -33,7 +32,18 @@ export function FeedbackBar({ display, type, config }: FeedbackBarProps) {
       flexShrink={0}
       backgroundColor={backgroundColor}
     >
-      <Text color={color}>{display.content}</Text>
+      <Text
+        {...(color === undefined ? {} : { color })}
+        {...(highlight?.bold === undefined ? {} : { bold: highlight.bold })}
+        {...(highlight?.italic === undefined
+          ? {}
+          : { italic: highlight.italic })}
+        {...(highlight?.underline === undefined
+          ? {}
+          : { underline: highlight.underline })}
+      >
+        {display.content}
+      </Text>
     </Box>
   );
 }

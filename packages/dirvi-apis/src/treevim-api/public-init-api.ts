@@ -1,12 +1,12 @@
-import { ConfigPatch } from './config/config.js';
+import { ConfigPatch } from './config.js';
 import { TreevimApi } from './treevim-api.js';
-import { HighlightResolver } from './config/highlight-resolver.js';
+import { HighlightResolver } from './highlight-resolver/highlight-resolver.js';
 import { AsyncCreateAppDefinitionApplicator } from '../app/index.js';
 
 // An `InitRuntime` provides this API while the script runs. It describes
 // the intended API for TypeScript consumers and provides editor guidance and
-// compile-time checking. The script uses it to configure Dirvi by evaluation
-// creating `Initialization` object used internally by Dirvi.
+// compile-time checking. The script uses it to configure Treevim by evaluation
+// creating `Initialization` object used internally by Treevim.
 //
 // WARNING: Does not validate values at runtime: `init.mjs` may be plain
 // JavaScript and can pass values that do not match these types. The runtime
@@ -30,7 +30,7 @@ export type PublicInitApi = {
       id: string;
       create: AsyncCreateAppDefinitionApplicator;
       /**
-       * Configuration patch for this app. Sets indentation and colors.
+       * Configuration patch for this app. Sets indentation behavior.
        *
        * The runtime merges it with the default configuration and validates
        * the result. When the app becomes active, its configuration is used.
@@ -39,7 +39,7 @@ export type PublicInitApi = {
       /**
        * Normal commands invoked in normal mode while the app is active.
        *
-       * Each closure receives the live DirviApi when invoked, not while init.mjs
+       * Each closure receives the live TreevimApi when invoked, not while init.mjs
        * is being evaluated.
        *
        * An exact registered command takes precedence over a built-in command
@@ -56,7 +56,7 @@ export type PublicInitApi = {
       /**
        * Ex commands invoked as `:${command}` while this app is active.
        *
-       * Each closure receives the live DirviApi and the unparsed argument text
+       * Each closure receives the live TreevimApi and the unparsed argument text
        * when invoked, not while init.mjs is being evaluated. Registered commands
        * take precedence over built-ins and receive their arguments as a raw
        * string, with the beginning space ignored.
@@ -69,9 +69,7 @@ export type PublicInitApi = {
         execute: (api: TreevimApi, rawArgs?: string) => void | Promise<void>;
       }[];
       /**
-       * App-specific theme.
-       *
-       * Takes tokens and returns a style.
+       * App-specific highlight resolver for content and UI tokens.
        */
       highlightResolver?: HighlightResolver;
     }) => void;

@@ -230,7 +230,7 @@ export function createFoldMethods<Id, Value>(
 
     return foldTreeApi.value(tree).length === 0 && children.length === 0;
   }
-  
+
   function filterTree(
     tree: FoldTree<Id>,
     root: TreeNode<Id, Value>,

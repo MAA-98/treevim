@@ -1,11 +1,11 @@
 import { z } from 'zod';
+import { uiHighlightTokens } from 'dirvi-apis';
 import type {
-  BgHlConfig,
   BasicColorName,
   LogicalColor,
-  FgAndBgHlConfig,
-  FgHlConfig,
-  Theme,
+  HighlightResolver,
+  HighlightStyle,
+  UiHighlightToken,
 } from 'dirvi-apis';
 
 // =============================================================================
@@ -62,22 +62,16 @@ export const ColorConfigSchema = z
   ) satisfies z.ZodType<LogicalColor>;
 
 // =============================================================================
-// Highlights: Schemas
+// Highlight Style: Schemas
 // =============================================================================
-// These schemas are intentionally non-strict.
-
-export const ForegroundHighlightConfigSchema = z.object({
-  fg: ColorConfigSchema,
-}) satisfies z.ZodType<FgHlConfig>;
-
-export const BackgroundHighlightConfigSchema = z.object({
-  bg: ColorConfigSchema,
-}) satisfies z.ZodType<BgHlConfig>;
-
-export const ForegroundBackgroundHighlightConfigSchema = z.object({
-  fg: ColorConfigSchema,
-  bg: ColorConfigSchema,
-}) satisfies z.ZodType<FgAndBgHlConfig>;
+// This schema is intentionally non-strict.
+export const HighlightStyleSchema = z.object({
+  fg: ColorConfigSchema.exactOptional(),
+  bg: ColorConfigSchema.exactOptional(),
+  bold: z.boolean().exactOptional(),
+  italic: z.boolean().exactOptional(),
+  underline: z.boolean().exactOptional(),
+}) satisfies z.ZodType<HighlightStyle>;
 
 // =============================================================================
 // Theme defaults
@@ -95,13 +89,7 @@ const lightGray: LogicalColor = {
   basic: 'gray',
 };
 
-const foldInfo: LogicalColor = {
-  hex: '#808080',
-  ansi256: 245,
-  basic: 'gray',
-};
-
-const indentGuide: LogicalColor = {
+const darkGray: LogicalColor = {
   hex: '#808080',
   ansi256: 245,
   basic: 'gray',
@@ -119,87 +107,38 @@ const cursorLine: LogicalColor = {
   basic: 'gray',
 };
 
-const success: LogicalColor = {
+const successGreen: LogicalColor = {
   hex: '#238c4b',
   ansi256: 28,
   basic: 'green',
 };
 
-const error: LogicalColor = {
+const errorRed: LogicalColor = {
   hex: '#be2d2d',
   ansi256: 160,
   basic: 'red',
 };
 
-const themeDefaults = {
-  statusBar: {
-    command: { fg: black, bg: lightGray },
-    normal: { fg: black, bg: lightGray },
-  },
-  tree: {
-    foldInfo: { fg: foldInfo },
-    cursorLine: { bg: cursorLine },
-    indentGuide: { fg: indentGuide },
-    activeIndentGuide: { fg: activeIndentGuide },
-  },
-  feedbackBar: {
-    message: {
-      fg: black,
-      bg: lightGray,
-    },
-    success: {
-      fg: success,
-      bg: lightGray,
-    },
-    error: {
-      fg: error,
-      bg: lightGray,
-    },
-  },
-};
+const defaultUiHighlightStyles = {
+  [uiHighlightTokens.statusBar.command]: { fg: black, bg: activeIndentGuide },
+  [uiHighlightTokens.statusBar.normal]: { fg: black, bg: activeIndentGuide },
 
-// =============================================================================
-// Theme: Schema
-// =============================================================================
+  [uiHighlightTokens.tree.bg.odd]: {},
+  [uiHighlightTokens.tree.bg.even]: {},
+  [uiHighlightTokens.tree.fold]: { fg: darkGray },
+  [uiHighlightTokens.tree.inlineFold]: { fg: darkGray },
+  [uiHighlightTokens.tree.cursorLine]: { bg: cursorLine },
+  [uiHighlightTokens.tree.indentGuide]: { fg: darkGray },
+  [uiHighlightTokens.tree.activeIndentGuide]: { fg: activeIndentGuide },
 
-export const ThemeSchema = z.object({
-  statusBar: z
-    .object({
-      command: ForegroundBackgroundHighlightConfigSchema.default(
-        themeDefaults.statusBar.command,
-      ),
-      normal: ForegroundBackgroundHighlightConfigSchema.default(
-        themeDefaults.statusBar.normal,
-      ),
-    })
-    .default(themeDefaults.statusBar),
+  [uiHighlightTokens.feedbackBar.message]: { fg: black, bg: lightGray },
+  [uiHighlightTokens.feedbackBar.success]: { fg: successGreen, bg: lightGray },
+  [uiHighlightTokens.feedbackBar.error]: { fg: errorRed, bg: lightGray },
+} satisfies Record<UiHighlightToken, HighlightStyle>;
 
-  tree: z
-    .object({
-      foldInfo: ForegroundHighlightConfigSchema.default(
-        themeDefaults.tree.foldInfo,
-      ),
-      cursorLine: BackgroundHighlightConfigSchema.default(
-        themeDefaults.tree.cursorLine,
-      ),
-      indentGuide: ForegroundHighlightConfigSchema.exactOptional(),
-      activeIndentGuide: ForegroundHighlightConfigSchema.exactOptional(),
-    })
-    .default(themeDefaults.tree),
+const defaultUiHighlights = new Map<string, HighlightStyle>(
+  Object.entries(defaultUiHighlightStyles),
+);
 
-  feedbackBar: z
-    .object({
-      message: ForegroundBackgroundHighlightConfigSchema.default(
-        themeDefaults.feedbackBar.message,
-      ),
-      success: ForegroundBackgroundHighlightConfigSchema.default(
-        themeDefaults.feedbackBar.success,
-      ),
-      error: ForegroundBackgroundHighlightConfigSchema.default(
-        themeDefaults.feedbackBar.error,
-      ),
-    })
-    .default(themeDefaults.feedbackBar),
-}) satisfies z.ZodType<Theme>;
-
-export const defaultTheme: Theme = ThemeSchema.parse({});
+export const defaultUiHighlightResolver: HighlightResolver = (token) =>
+  defaultUiHighlights.get(token);

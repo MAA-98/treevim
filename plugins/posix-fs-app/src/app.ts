@@ -1,8 +1,6 @@
 import { basename, join } from 'node:path';
 
-import type {
-  CreateAppDefinitionApplicator,
-} from 'treevim';
+import type { CreateAppDefinitionApplicator } from 'treevim';
 
 import type { PosixId } from './domain/posix-tree.js';
 import { posixFilenameSchema, posixValueSchema } from './domain/posix-tree.js';

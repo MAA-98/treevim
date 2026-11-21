@@ -1,4 +1,4 @@
-import type { LogicalColor } from './theme.js';
+import type { LogicalColor } from './logical-color.js';
 
 /**
  * Returns undefined when the token is not recognized.
@@ -7,6 +7,9 @@ import type { LogicalColor } from './theme.js';
  */
 export type HighlightResolver = (token: string) => HighlightStyle | undefined;
 
+/**
+ * Note: `{}` is valid as a style.
+ */
 export type HighlightStyle = Readonly<{
   fg?: LogicalColor;
   bg?: LogicalColor;

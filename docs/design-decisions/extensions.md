@@ -114,12 +114,12 @@ treevim performs it through the shared runtime.
 
 **Implications:**
 
-Need a TreevimApi object with methods for controlling treevim, and a rule for 
+Need a TreevimApi object with methods for controlling treevim, and a rule for
 conflicts.
 
 **_Decision:_**
 
-- TreevimApi is made with ShellApi and AppApi for control of the shell outside 
+- TreevimApi is made with ShellApi and AppApi for control of the shell outside
   current app and control of the app.
 - Custom commands override builtins, later custom commands override earlier ones.
 
@@ -127,16 +127,17 @@ conflicts.
 
 **Requirement:**
 
-1. A theme per app, for defining UI components.  
+1. A theme per app, for defining UI components.
 2. Design close enough to easily copy themes from Neovim or, less importantly, VSCode.
 
 **_Decision:_**
 
-- The app registrations have a highlight resolver, which maps "highlight tokens" to 
+- The app registrations have a highlight resolver, which maps "highlight tokens" to
   styling. This was necessary because for the filesystem app to include nerd fonts for file
-  types we needed to include both the font and the styling. So it was done separately 
-  by presentNode defining the content presented, and the styling through highlight 
+  types we needed to include both the font and the styling. So it was done separately
+  by presentNode defining the content presented, and the styling through highlight
   resolvers. Content and styling are handled at different layers, so this was natural.
-- Since the highlight tokens and resolvers are already there, instead of having a separate 
-  config for UI colors, we can just make the UIs also be styled by highlight resolvers, 
-  by assinging them highlight tokens. 
+- Since the highlight tokens and resolvers are already there, instead of having a separate
+  config for UI colors, the UI is also styled by highlight resolvers. Treevim exposes
+  `uiHighlightTokens` for the status bar, tree, and feedback bar; applications
+  resolve these alongside their content tokens.

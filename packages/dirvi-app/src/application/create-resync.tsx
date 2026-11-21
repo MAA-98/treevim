@@ -37,7 +37,7 @@ export function createResync<Id, Value>(
     if (navigation === undefined) {
       throw new Error('Cannot resync: root is not a branch');
     }
-    
+
     const cursor = navMethods.cursorAfterResync(
       oldNavigation,
       navigation,
@@ -45,7 +45,7 @@ export function createResync<Id, Value>(
     );
 
     const newState = stateMethods.update(oldState, { root, folds, cursor });
-    
+
     // State requires a loaded root branch.
     if (newState === undefined) {
       throw new Error('Cannot resync: root is not a loaded branch');

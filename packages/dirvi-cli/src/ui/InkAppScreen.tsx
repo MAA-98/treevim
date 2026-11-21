@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Box, useInput, useWindowSize } from 'ink';
 
 import type { Config, FeedbackType, HighlightResolver } from 'dirvi-apis';
+import { uiHighlightTokens } from 'dirvi-apis';
 import type {
   Feedback,
   FeedbackApi,
@@ -78,6 +79,16 @@ export const InkAppScreen: AppScreenRenderer = ({
     );
   }, [feedback, terminalColumns, viewportHeight]);
 
+  const feedbackHighlight =
+    feedbackDisplay.height > 0
+      ? highlightResolver(uiHighlightTokens.feedbackBar[feedbackType])
+      : undefined;
+
+  const feedbackBackground =
+    feedbackDisplay.height > 0
+      ? highlightResolver(uiHighlightTokens.feedbackBar[feedbackType])?.bg
+      : undefined;
+
   return (
     <Box flexDirection="column" height={terminalRows}>
       <Box
@@ -100,20 +111,26 @@ export const InkAppScreen: AppScreenRenderer = ({
             left={0}
             width="100%"
             height={feedbackDisplay.height}
-            backgroundColor={colorConfigToInkColor(
-              config.theme.feedbackBar[feedbackType].bg,
-            )}
+            {...(feedbackBackground === undefined
+              ? {}
+              : { backgroundColor: colorConfigToInkColor(feedbackBackground) })}
           >
             <FeedbackBar
               display={feedbackDisplay}
-              type={feedbackType}
-              config={config}
+              highlight={feedbackHighlight}
             />
           </Box>
         )}
       </Box>
 
-      <StatusBar inputState={inputState} config={config} />
+      <StatusBar
+        inputState={inputState}
+        highlight={highlightResolver(
+          inputState.inputMode === 'command'
+            ? uiHighlightTokens.statusBar.command
+            : uiHighlightTokens.statusBar.normal,
+        )}
+      />
     </Box>
   );
 };

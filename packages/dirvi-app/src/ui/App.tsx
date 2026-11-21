@@ -119,7 +119,7 @@ export function App<Id, Value, ViewKey = string>({
 
     const unsubscribe = appMethods.subscribeToResync(() => {
       const oldState = stateRef.current;
-      
+
       void resync(oldState, appMethods.loadChildren)
         .then((newState) => {
           if (!active) {

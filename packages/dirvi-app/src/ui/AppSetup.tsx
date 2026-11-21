@@ -11,13 +11,11 @@ import {
 
 import type { LoadingScreenRenderer } from './loading-screen-renderer.js';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
-import type {
-  Initialization,
-  InitializationResult,
-} from '../domain/initialization.js';
+import type { Initialization } from '../domain/initialization.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
 import { App } from './App.js';
 import { defaultConfig } from '../domain/config.js';
+import { defaultUiHighlightResolver } from '../domain/theme.js';
 
 // TODO Later: configuration watched for changes
 
@@ -128,11 +126,13 @@ export function AppSetup<Id, Value>({
     [initialization.exCommands, appId],
   );
 
-  const highlightResolver = useMemo(
-    () =>
-      initialization.highlightResolvers.get(appId) ?? emptyHighlightResolver,
-    [initialization.highlightResolvers, appId],
-  );
+  const highlightResolver = useMemo(() => {
+    const appHighlightResolver =
+      initialization.highlightResolvers.get(appId) ?? emptyHighlightResolver;
+
+    return (token: string) =>
+      appHighlightResolver(token) ?? defaultUiHighlightResolver(token);
+  }, [initialization.highlightResolvers, appId]);
 
   const reducer = useMemo(
     () => createReducer(appMethods.stateMethods, appMethods.navMethods),

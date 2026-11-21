@@ -1,6 +1,7 @@
 import { Box, Text } from 'ink';
 
 import type { Config, HighlightResolver, HighlightSpan } from 'dirvi-apis';
+import { uiHighlightTokens } from 'dirvi-apis';
 import { colorConfigToInkColor, View } from '@mak-98/dirvi-app';
 
 import { ViewRowComponent } from './ViewRowComponent.js';
@@ -17,11 +18,11 @@ export function ViewRowsComponent({
   config,
   highlightResolver,
 }: ViewRowsComponentProps) {
-  const resolveHlSpan = (hlSpan: HighlightSpan): StyledSpan => {
-    const style = highlightResolver(hlSpan.hlToken);
+  const resolveSpan = (content: string, token: string): StyledSpan => {
+    const style = highlightResolver(token);
 
     return {
-      content: hlSpan.content,
+      content,
       color:
         style?.fg === undefined ? undefined : colorConfigToInkColor(style.fg),
       bgColor:
@@ -33,13 +34,11 @@ export function ViewRowsComponent({
     };
   };
 
-  const createFoldSpan = (content: string): StyledSpan => ({
-    content,
-    color: colorConfigToInkColor(config.theme.tree.foldInfo.fg),
-    bgColor: undefined,
-    bold: undefined,
-    italic: undefined,
-    underline: undefined,
+  const resolveHlSpan = (hlSpan: HighlightSpan): StyledSpan =>
+    resolveSpan(hlSpan.content, hlSpan.hlToken);
+
+  const createFoldSpan = (content: string, token: string): StyledSpan => ({
+    ...resolveSpan(content, token),
     dimColor: true,
   });
 
@@ -51,12 +50,22 @@ export function ViewRowsComponent({
         view.rows.map((row, index) => {
           const styledSpans =
             row.type === 'fold'
-              ? [createFoldSpan(`… ${row.foldedCount} folded`)]
+              ? [
+                  createFoldSpan(
+                    `… ${row.foldedCount} folded`,
+                    uiHighlightTokens.tree.fold,
+                  ),
+                ]
               : row.spans.map(resolveHlSpan);
 
           // Unordered folds are displayed as a suffix on their parent branch.
           if (row.type === 'branch' && row.foldedCount !== undefined) {
-            styledSpans.push(createFoldSpan(` … ${row.foldedCount}`));
+            styledSpans.push(
+              createFoldSpan(
+                ` … ${row.foldedCount}`,
+                uiHighlightTokens.tree.inlineFold,
+              ),
+            );
           }
 
           return (
@@ -66,6 +75,8 @@ export function ViewRowsComponent({
               row={row}
               config={config}
               styledSpans={styledSpans}
+              rowIndex={index}
+              highlightResolver={highlightResolver}
             />
           );
         })

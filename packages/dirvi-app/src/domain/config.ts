@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { defaultTheme, ThemeSchema } from './theme.js';
 import type { Config } from 'dirvi-apis';
 
 // =============================================================================
@@ -11,7 +10,6 @@ export const ConfigSchema = z.object({
   // An empty string is valid and removes the first indentation prefix.
   firstIndent: z.string().optional(),
   nerdFonts: z.boolean().default(false),
-  theme: ThemeSchema.default(defaultTheme),
 }) satisfies z.ZodType<Config>;
 
 export const defaultConfig: Config = ConfigSchema.parse({});

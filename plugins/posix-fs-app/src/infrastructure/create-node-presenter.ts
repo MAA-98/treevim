@@ -196,8 +196,8 @@ export const createNodePresenter =
           },
           {
             content: `@`,
-            hlToken: 'node.content.symlink.atSign'
-          }
+            hlToken: 'node.content.symlink.atSign',
+          },
         ];
 
         if (!nerdFonts) {
