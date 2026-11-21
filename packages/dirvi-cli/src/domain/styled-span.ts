@@ -5,5 +5,4 @@ export type StyledSpan = {
   readonly bold: boolean | undefined;
   readonly italic: boolean | undefined;
   readonly underline: boolean | undefined;
-  readonly dimColor: boolean;
 };

@@ -33,7 +33,7 @@ import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
 import { createResync } from '../application/create-resync.js';
 
-type AppProps<Id, Value, ViewKey = string> = {
+type AppProps<Id, Value> = {
   screenRenderer: AppScreenRenderer;
   shellApi: ShellApi;
   appMethods: AppMethods<Id, Value>;
@@ -53,7 +53,7 @@ type AppProps<Id, Value, ViewKey = string> = {
   onError?: (error: Error) => void;
 };
 
-export function App<Id, Value, ViewKey = string>({
+export function App<Id, Value>({
   screenRenderer,
   shellApi,
   appMethods,
@@ -68,7 +68,7 @@ export function App<Id, Value, ViewKey = string>({
   intentToEffect,
   effectToAction,
   onError,
-}: AppProps<Id, Value, ViewKey>) {
+}: AppProps<Id, Value>) {
   const ScreenRenderer = screenRenderer;
   const [state, dispatch] = useReducer(reducer, initialState);
   const stateRef = useRef(state); // Gives `subscribeToResync` callback a way to

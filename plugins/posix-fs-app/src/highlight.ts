@@ -32,6 +32,8 @@ export const highlightResolver: HighlightResolver = (token: string) => {
     case 'node.content.icon.prettier':
       return { fg: { hex: '#56B3B4' } };
   }
+  
+  // TODO: Add Lua
 
   return undefined;
 };

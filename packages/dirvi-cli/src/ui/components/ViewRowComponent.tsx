@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
 
-import { uiHighlightTokens } from 'dirvi-apis';
+import type { UiHighlightToken } from 'dirvi-apis';
 import type { HighlightResolver, Config } from 'dirvi-apis';
 import type { ViewRow } from '@mak-98/dirvi-app';
 import { colorConfigToInkColor } from '@mak-98/dirvi-app';
@@ -48,22 +48,19 @@ export function ViewRowComponent({
   rowIndex,
   highlightResolver,
 }: ViewRowComponentProps) {
-  const rowHighlight = highlightResolver(
-    row.cursor
-      ? uiHighlightTokens.tree.cursorLine
-      : rowIndex % 2 === 0
-        ? uiHighlightTokens.tree.bg.even
-        : uiHighlightTokens.tree.bg.odd,
-  );
+  const rowToken: UiHighlightToken = row.cursor
+    ? 'ui.tree.cursor-line'
+    : rowIndex % 2 === 0
+      ? 'ui.tree.bg.even'
+      : 'ui.tree.bg.odd';
+
+  const rowHighlight = highlightResolver(rowToken);
   const rowBackgroundColor =
     rowHighlight?.bg === undefined
       ? undefined
       : colorConfigToInkColor(rowHighlight.bg);
-
-  const indentationGuide = row.cursor
-    ? (highlightResolver(uiHighlightTokens.tree.activeIndentGuide) ??
-      highlightResolver(uiHighlightTokens.tree.indentGuide))
-    : highlightResolver(uiHighlightTokens.tree.indentGuide);
+  
+  const indentationGuide = highlightResolver('ui.tree.indent-guide');
 
   const indentationGuideColor =
     indentationGuide?.fg === undefined
@@ -87,11 +84,23 @@ export function ViewRowComponent({
 
   return (
     <Box width="100%" backgroundColor={rowBackgroundColor}>
-      {indentationGuide !== undefined && (
+      {indentation !== '' && (
         <Text
           {...(indentationGuideColor === undefined
             ? {}
-            : { color: indentationGuideColor, dimColor: true })}
+            : { color: indentationGuideColor })}
+          {...(indentationGuideBackgroundColor === undefined
+            ? {}
+            : { backgroundColor: indentationGuideBackgroundColor })}
+          {...(indentationGuide?.bold === undefined
+            ? {}
+            : { bold: indentationGuide.bold })}
+          {...(indentationGuide?.italic === undefined
+            ? {}
+            : { italic: indentationGuide.italic })}
+          {...(indentationGuide?.underline === undefined
+            ? {}
+            : { underline: indentationGuide.underline })}
         >
           {indentation}
         </Text>
@@ -101,22 +110,15 @@ export function ViewRowComponent({
         {styledSpans.map((span, index) => (
           <Text
             key={index}
-            {...(indentationGuideColor === undefined
+            {...(span.color === undefined ? {} : { color: span.color })}
+            {...(row.cursor || span.bgColor === undefined
               ? {}
-              : { color: indentationGuideColor })}
-            {...(indentationGuideBackgroundColor === undefined
+              : { backgroundColor: span.bgColor })}
+            {...(span.bold === undefined ? {} : { bold: span.bold })}
+            {...(span.italic === undefined ? {} : { italic: span.italic })}
+            {...(span.underline === undefined
               ? {}
-              : { backgroundColor: indentationGuideBackgroundColor })}
-            {...(indentationGuide?.bold === undefined
-              ? {}
-              : { bold: indentationGuide.bold })}
-            {...(indentationGuide?.italic === undefined
-              ? {}
-              : { italic: indentationGuide.italic })}
-            {...(indentationGuide?.underline === undefined
-              ? {}
-              : { underline: indentationGuide.underline })}
-            {...(indentationGuide === undefined ? {} : { dimColor: true })}
+              : { underline: span.underline })}
           >
             {span.content}
           </Text>

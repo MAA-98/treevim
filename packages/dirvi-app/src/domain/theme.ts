@@ -77,6 +77,12 @@ export const HighlightStyleSchema = z.object({
 // Theme defaults
 // =============================================================================
 
+const white: LogicalColor = {
+  hex: '#ffffff',
+  ansi256: 231,
+  basic: 'white',
+};
+
 const black: LogicalColor = {
   hex: '#28282a',
   ansi256: 235,
@@ -120,21 +126,18 @@ const errorRed: LogicalColor = {
 };
 
 const defaultUiHighlightStyles = {
-  [uiHighlightTokens.statusBar.command]: { fg: black, bg: activeIndentGuide },
-  [uiHighlightTokens.statusBar.normal]: { fg: black, bg: activeIndentGuide },
+  'ui.status-bar': { fg: black, bg: white },
 
-  [uiHighlightTokens.tree.bg.odd]: {},
-  [uiHighlightTokens.tree.bg.even]: {},
-  [uiHighlightTokens.tree.fold]: { fg: darkGray },
-  [uiHighlightTokens.tree.inlineFold]: { fg: darkGray },
-  [uiHighlightTokens.tree.cursorLine]: { bg: cursorLine },
-  [uiHighlightTokens.tree.indentGuide]: { fg: darkGray },
-  [uiHighlightTokens.tree.activeIndentGuide]: { fg: activeIndentGuide },
+  'ui.tree.bg': {},
+  'ui.tree.fold': { fg: darkGray },
+  'ui.tree.cursor-line': { bg: cursorLine },
+  'ui.tree.indent-guide': { fg: darkGray },
+  'ui.tree.indent-guide.active': { fg: activeIndentGuide },
 
-  [uiHighlightTokens.feedbackBar.message]: { fg: black, bg: lightGray },
-  [uiHighlightTokens.feedbackBar.success]: { fg: successGreen, bg: lightGray },
-  [uiHighlightTokens.feedbackBar.error]: { fg: errorRed, bg: lightGray },
-} satisfies Record<UiHighlightToken, HighlightStyle>;
+  'ui.feedback-bar': { fg: black, bg: lightGray },
+  'ui.feedback-bar.success': { fg: successGreen, bg: lightGray },
+  'ui.feedback-bar.error': { fg: errorRed, bg: lightGray },
+} satisfies Partial<Record<UiHighlightToken, HighlightStyle>>;
 
 const defaultUiHighlights = new Map<string, HighlightStyle>(
   Object.entries(defaultUiHighlightStyles),

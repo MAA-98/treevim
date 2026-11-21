@@ -26,7 +26,7 @@
     "@mak-98/dirvi-app": "workspace:*",
     "dirvi-lib": "workspace:*",
     "dirvi-apis": "workspace:*",
-    "@mak-98/posix-fs-dirvi-app": "^0.11.0-beta.25",
+    "@mak-98/posix-fs-dirvi-app": "^0.11.0-beta.27",
     "ink": "^7.1.1",
     "react": "^19.0.0",
     "slice-ansi": "^9.0.1",

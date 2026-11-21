@@ -1,8 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Box, useInput, useWindowSize } from 'ink';
 
-import type { Config, FeedbackType, HighlightResolver } from 'dirvi-apis';
-import { uiHighlightTokens } from 'dirvi-apis';
+import type { Config, FeedbackType, HighlightResolver, UiHighlightToken } from 'dirvi-apis';
 import type {
   Feedback,
   FeedbackApi,
@@ -78,16 +77,18 @@ export const InkAppScreen: AppScreenRenderer = ({
       viewportHeight,
     );
   }, [feedback, terminalColumns, viewportHeight]);
+  
+  const feedbackToken: UiHighlightToken = `ui.feedback-bar.${feedbackType}`;
 
   const feedbackHighlight =
-    feedbackDisplay.height > 0
-      ? highlightResolver(uiHighlightTokens.feedbackBar[feedbackType])
-      : undefined;
+    feedbackDisplay.height > 0 ? highlightResolver(feedbackToken) : undefined;
 
-  const feedbackBackground =
-    feedbackDisplay.height > 0
-      ? highlightResolver(uiHighlightTokens.feedbackBar[feedbackType])?.bg
-      : undefined;
+  const feedbackBackground = feedbackHighlight?.bg;
+
+  const statusBarToken: UiHighlightToken =
+    inputState.inputMode === 'command'
+      ? 'ui.status-bar.command'
+      : 'ui.status-bar.normal';
 
   return (
     <Box flexDirection="column" height={terminalRows}>
@@ -125,11 +126,7 @@ export const InkAppScreen: AppScreenRenderer = ({
 
       <StatusBar
         inputState={inputState}
-        highlight={highlightResolver(
-          inputState.inputMode === 'command'
-            ? uiHighlightTokens.statusBar.command
-            : uiHighlightTokens.statusBar.normal,
-        )}
+        highlight={highlightResolver(statusBarToken)}
       />
     </Box>
   );

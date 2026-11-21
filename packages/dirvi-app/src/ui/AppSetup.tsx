@@ -16,6 +16,7 @@ import type { ExCommand, NormalCommand } from '../domain/command.js';
 import { App } from './App.js';
 import { defaultConfig } from '../domain/config.js';
 import { defaultUiHighlightResolver } from '../domain/theme.js';
+import { resolveWithFallback } from '../application/highlight-resolver.js';
 
 // TODO Later: configuration watched for changes
 
@@ -129,9 +130,10 @@ export function AppSetup<Id, Value>({
   const highlightResolver = useMemo(() => {
     const appHighlightResolver =
       initialization.highlightResolvers.get(appId) ?? emptyHighlightResolver;
-
+    
     return (token: string) =>
-      appHighlightResolver(token) ?? defaultUiHighlightResolver(token);
+      resolveWithFallback(appHighlightResolver, token) ??
+      resolveWithFallback(defaultUiHighlightResolver, token);
   }, [initialization.highlightResolvers, appId]);
 
   const reducer = useMemo(

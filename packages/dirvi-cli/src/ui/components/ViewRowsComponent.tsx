@@ -1,7 +1,6 @@
 import { Box, Text } from 'ink';
 
-import type { Config, HighlightResolver, HighlightSpan } from 'dirvi-apis';
-import { uiHighlightTokens } from 'dirvi-apis';
+import type { Config, HighlightResolver, HighlightSpan, UiHighlightToken } from 'dirvi-apis';
 import { colorConfigToInkColor, View } from '@mak-98/dirvi-app';
 
 import { ViewRowComponent } from './ViewRowComponent.js';
@@ -30,30 +29,24 @@ export function ViewRowsComponent({
       bold: style?.bold,
       italic: style?.italic,
       underline: style?.underline,
-      dimColor: false,
     };
   };
 
   const resolveHlSpan = (hlSpan: HighlightSpan): StyledSpan =>
     resolveSpan(hlSpan.content, hlSpan.hlToken);
 
-  const createFoldSpan = (content: string, token: string): StyledSpan => ({
-    ...resolveSpan(content, token),
-    dimColor: true,
-  });
-
   return (
     <Box flexDirection="column" flexShrink={0} width="100%">
       {view.rows.length === 0 ? (
-        <Text dimColor>Empty.</Text>
+        <Text>Empty.</Text>
       ) : (
         view.rows.map((row, index) => {
           const styledSpans =
             row.type === 'fold'
               ? [
-                  createFoldSpan(
+                  resolveSpan(
                     `… ${row.foldedCount} folded`,
-                    uiHighlightTokens.tree.fold,
+                    'ui.tree.fold' satisfies UiHighlightToken,
                   ),
                 ]
               : row.spans.map(resolveHlSpan);
@@ -61,9 +54,9 @@ export function ViewRowsComponent({
           // Unordered folds are displayed as a suffix on their parent branch.
           if (row.type === 'branch' && row.foldedCount !== undefined) {
             styledSpans.push(
-              createFoldSpan(
+              resolveSpan(
                 ` … ${row.foldedCount}`,
-                uiHighlightTokens.tree.inlineFold,
+                'ui.tree.fold.inline' satisfies UiHighlightToken,
               ),
             );
           }
