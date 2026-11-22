@@ -1,5 +1,5 @@
 import type {} from 'treevim/treevim';
-import { TreevimApi } from 'treevim';
+import type { HighlightStyle, TreevimApi, UiHighlightToken } from 'treevim';
 
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
@@ -10,6 +10,27 @@ import { highlightResolver as fsHlRes } from '@mak-98/posix-fs-dirvi-app/highlig
 const commonConfig = {
   firstIndent: ' ',
 };
+const fsUiHighlights = new Map<string, HighlightStyle>(
+  Object.entries({
+    'ui.status-bar.normal': { fg: { hex: '#b9f5ed' }, bg: { hex: '#164e59' } },
+    'ui.status-bar.command': { fg: { hex: '#102a36' }, bg: { hex: '#67d5c5' } },
+    'ui.tree.cursor-line': { bg: { hex: '#24465b' } },
+    'ui.tree.fold': { fg: { hex: '#79b9bd' } },
+    'ui.tree.indent-guide': { fg: { hex: '#527b8d' } },
+    'ui.tree.indent-guide.active': { fg: { hex: '#80d4ca' } },
+  } satisfies Partial<Record<UiHighlightToken, HighlightStyle>>),
+);
+
+const xmlUiHighlights = new Map<string, HighlightStyle>(
+  Object.entries({
+    'ui.status-bar.normal': { fg: { hex: '#e7d8ff' }, bg: { hex: '#49365f' } },
+    'ui.status-bar.command': { fg: { hex: '#302317' }, bg: { hex: '#f2c57c' } },
+    'ui.tree.cursor-line': { bg: { hex: '#403b5c' } },
+    'ui.tree.fold': { fg: { hex: '#c9a7e8' } },
+    'ui.tree.indent-guide': { fg: { hex: '#82769c' } },
+    'ui.tree.indent-guide.active': { fg: { hex: '#e2bd81' } },
+  } satisfies Partial<Record<UiHighlightToken, HighlightStyle>>),
+);
 const commonCommands = [
   {
     command: 'shell',
@@ -70,21 +91,7 @@ treevim.app.register({
     const { app } = await import('@mak-98/posix-fs-dirvi-app/app');
     return app(input);
   },
-  config: {
-    ...commonConfig,
-    theme: {
-      statusBar: {
-        normal: { fg: { hex: '#b9f5ed' }, bg: { hex: '#164e59' } },
-        command: { fg: { hex: '#102a36' }, bg: { hex: '#67d5c5' } },
-      },
-      tree: {
-        cursorLine: { bg: { hex: '#24465b' } },
-        foldInfo: { fg: { hex: '#79b9bd' } },
-        indentGuide: { fg: { hex: '#527b8d' } },
-        activeIndentGuide: { fg: { hex: '#80d4ca' } },
-      },
-    },
-  },
+  config: commonConfig,
   ex: [
     {
       command: 'show-path',
@@ -94,9 +101,9 @@ treevim.app.register({
       },
     },
   ],
-  highlightResolver: (token: string) => {
-    return fsHlRes(token);
-  },
+  highlightResolver: (token: string) =>
+    // Use icon highlights then theme
+    fsHlRes(token) ?? fsUiHighlights.get(token),
 });
 
 treevim.app.initial('fs');
@@ -107,20 +114,7 @@ treevim.app.register({
     const { app } = await import('@mak-98/xml-dirvi-app');
     return app(input);
   },
-  config: {
-    ...commonConfig,
-    theme: {
-      statusBar: {
-        normal: { fg: { hex: '#e7d8ff' }, bg: { hex: '#49365f' } },
-        command: { fg: { hex: '#302317' }, bg: { hex: '#f2c57c' } },
-      },
-      tree: {
-        cursorLine: { bg: { hex: '#403b5c' } },
-        foldInfo: { fg: { hex: '#c9a7e8' } },
-        indentGuide: { fg: { hex: '#82769c' } },
-        activeIndentGuide: { fg: { hex: '#e2bd81' } },
-      },
-    },
-  },
+  config: commonConfig,
   ex: commonCommands,
+  highlightResolver: (token: string) => xmlUiHighlights.get(token),
 });
