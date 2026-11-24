@@ -18,8 +18,8 @@
       "default": "./dist/api/app/index.js"
     },
     "./config": {
-      "types": "./dist/api/treevim-api/index.d.ts",
-      "default": "./dist/api/treevim-api/index.js"
+      "types": "./dist/api/api/index.d.ts",
+      "default": "./dist/api/api/index.js"
     },
     "./treevim": {
       "types": "./dist/api/treevim.d.ts",
@@ -44,6 +44,7 @@
     "tag": "beta"
   },
   "dependencies": {
+    "@earendil-works/pi-codemode": "^1.6.0",
     "@mak-98/posix-fs-dirvi-app": "^0.11.0-beta.26",
     "commander": "^13.0.0",
     "ink": "^7.1.1",

@@ -27,8 +27,8 @@ for (const file of [
   'dist/api/index.d.ts',
   'dist/api/app/index.js',
   'dist/api/app/index.d.ts',
-  'dist/api/treevim-api/index.js',
-  'dist/api/treevim-api/index.d.ts',
+  'dist/api/api/index.js',
+  'dist/api/api/index.d.ts',
   'dist/api/treevim.js',
   'dist/api/treevim.d.ts',
 ]) {
