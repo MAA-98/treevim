@@ -3,22 +3,7 @@
 This is a record of design decisions and their justifications. Previous design choices influence the next, so this is
 to be interpreted chronologically.
 
-### Modal Editing 1
-
-**Requirement:**
-
-1. Commands reminiscent of Neo/Vim, and easy for users of it to pick up and use.
-2. It must be general enough to be the same for various tree structures: file directories, ASTs, git trees, etc.
-
-**_Decision:_**
-
-A normal mode for shortcuts and command mode for Ex-style commands will be expected and natural for Vim users. Insert
-mode only makes sense in the context of text buffers, so it's not implemented.
-
-To display Ex command buffer, modes, normal modes command buffer, and additional status parts, there is a status bar at
-the bottom as in Neo/Vim.
-
-### Navigation 1
+### Navigation
 
 **Requirement:**
 
@@ -42,7 +27,7 @@ Keep arrow keys as conventional directional navigation, leave `h`, `j`, `k`, `l`
 Add `0` and `$` for moving to the beginning and end of the siblings of the current cursor's node.
 Add most obvious controls first over time, and then fil in the gaps in a way that makes most consistent sense.
 
-### Feedback 1
+### Feedback
 
 **Requirement:**
 

@@ -105,6 +105,21 @@ presentation: indentation, cursor, selection, fold styling, etc.
 Similarly, the app signals when resynchronization is needed, while
 treevim performs it through the shared runtime.
 
+### Modal Editing
+
+**Requirement:**
+
+1. Commands reminiscent of Neo/Vim, and easy for users of it to pick up and use.
+2. It must be general enough to be the same for various tree structures: file directories, ASTs, git trees, etc.
+
+**_Decision:_**
+
+A normal mode for shortcuts and command mode for Ex-style commands will be expected and natural for Vim users. Insert
+mode only makes sense in the context of text buffers, so it's not implemented.
+
+To display Ex command buffer, modes, normal modes command buffer, and additional status parts, there is a status bar at
+the bottom as in Neo/Vim.
+
 ## Custom Commands
 
 **Requirement:**
@@ -141,3 +156,37 @@ conflicts.
   config for UI colors, the UI is also styled by highlight resolvers. Treevim exposes
   `uiHighlightTokens` for the status bar, tree, and feedback bar; applications
   resolve these alongside their content tokens.
+
+## Custom Commands 2
+
+**Requirement:**
+
+1. Given a function/command/tool that does something in an app, we should have a standard 
+   and easy way to write inputs for it in the command line, combine results and compose 
+   such functions/comands/tools.
+2. In the near future we will look to allow coding agents, in particular Pi's, to be 
+   able to call registered functions/commands/tools as tools in code mode. This will 
+   allow Pi to make use of all the same functions available to a user as a command. 
+   The current design of the commandline interpreter should be easily compatible with 
+   that future direction.
+
+**Discussion:**
+
+Currently, a normal command is written as `:commandName [inputString]` where 
+`inputString` is treated as a whole string to be given and parsed/interpreted by each 
+command function.
+
+This has notable disadvantages: each command could have its own parsing rules, and
+there is no standard for validation, providing hints to the user or extensions for the
+commandline editor.
+
+**_Decision:_**
+
+- Register commands in the same way as tools are registered in Pi. This will allow easy 
+integration later on. 
+- Then custom commands are run in JS mode:
+```js
+!tool.toolName(inputObject0, inputObject1, ...)
+```
+where the string after the first `!` is treated as pure JS, to run in a sandbox like
+in Pi's code mode.

@@ -1,18 +1,24 @@
 export type {
+  CodeExecutionResult,
+  CodeModeMessage
+} from './domain/code-execution.js';
+export type { ExCommand } from './domain/command.js';
+export type {
   Initialization,
   InitializationResult,
 } from './domain/initialization.js';
-export type { ExCommand } from './domain/command.js';
+export { viewNameSchema } from './domain/view-name-schema.js';
 
+export type { CreateExecuteCode, ExecuteCode } from './application/create-execute-code.js'
 export { createInitRuntime } from './application/init-runtime.js';
 export { createAppMethods } from './application/create-app-methods.js';
 
+export { createExecuteCode } from './infrastructure/create-execute-code.js'
+
 export type { ViewRow } from './ui/view.js';
 export { View } from './ui/view.js';
-export { viewNameSchema } from './domain/view-name-schema.js';
 export type { LoadingScreenRenderer } from './ui/loading-screen-renderer.js';
 export { colorConfigToInkColor } from './ui/color-resolver.js';
-
 export type {
   AppScreenProps,
   AppScreenRenderer,

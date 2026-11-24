@@ -1,5 +1,5 @@
 declare global {
-  var treevim: import('./treevim-api/public-init-api.js').PublicInitApi;
+  var treevim: import('./api/public-init-api.js').PublicInitApi;
 }
 
-export type { PublicInitApi } from './treevim-api/public-init-api.js';
+export type { PublicInitApi } from './api/public-init-api.js';

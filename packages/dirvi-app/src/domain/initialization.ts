@@ -1,10 +1,10 @@
 import type {
   AsyncCreateAppDefinitionApplicator,
   Config,
-  HighlightResolver,
+  HighlightResolver, ToolDefinition,
 } from 'dirvi-apis';
 
-import { ExCommand, NormalCommand } from './command.js';
+import { NormalCommand } from './command.js';
 
 /**
  * Resolved startup state produced by evaluating `init.mjs`.
@@ -19,7 +19,7 @@ export type Initialization = {
     /** ID of the app to open initially; must be present in `registered`. */
     initial: string;
 
-    /** App package references keyed by app ID. */
+    /** App definition applicator keyed by app ID. */
     registered: ReadonlyMap<string, AsyncCreateAppDefinitionApplicator>;
   };
 
@@ -39,7 +39,7 @@ export type Initialization = {
    * Ex commands registered by the initialization script, keyed by appId and
    * then command name.
    */
-  readonly exCommands: ReadonlyMap<string, ReadonlyMap<string, ExCommand>>;
+  readonly tools: ReadonlyMap<string, ReadonlyMap<string, ToolDefinition<any>>>;
 
   /**
    * App-specific highlight resolvers, keyed by app ID.

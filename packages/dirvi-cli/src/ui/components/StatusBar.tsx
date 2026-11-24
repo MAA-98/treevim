@@ -43,7 +43,7 @@ export function StatusBar({ inputState, highlight }: StatusBarProps) {
     >
       <Box flexShrink={1}>
         <Text {...textStyle} wrap="truncate-end">
-          {inputMode === 'command' ? inputState.commandLine : ''}
+          {inputMode === 'lineInput' ? inputState.line : ''}
         </Text>
       </Box>
 

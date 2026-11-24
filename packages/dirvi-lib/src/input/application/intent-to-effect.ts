@@ -20,7 +20,6 @@ export type IntentToEffect<Id, Value> = (
 
 export function createIntentToEffect<Id, Value>(
   customNormalCommands: ReadonlySet<string>,
-  userExCommands: ReadonlySet<string>,
   stateApi: StateMethods<Id, Value>,
 ): IntentToEffect<Id, Value> {
   return (intent, state) => {
@@ -47,25 +46,25 @@ export function createIntentToEffect<Id, Value>(
           effectActionType: 'prevEntry',
         });
 
-      case 'enterCommandLineMode':
+      case 'enterLineMode':
         return {
           effectType: 'setInputState',
           inputState: {
-            inputMode: 'command',
-            commandLine: ':',
+            inputMode: 'lineInput',
+            line: (intent.type === 'code') ? '!' : ':',
           },
         };
 
-      case 'setCommandLine':
+      case 'setLine':
         return {
           effectType: 'setInputState',
           inputState: {
-            inputMode: 'command',
-            commandLine: intent.commandLine,
+            inputMode: 'lineInput',
+            line: intent.line,
           },
         };
 
-      case 'exitCommandLineMode': {
+      case 'exitLineMode': {
         return {
           effectType: 'setInputState',
           inputState: {
@@ -77,9 +76,18 @@ export function createIntentToEffect<Id, Value>(
 
       // Clears and exits for empty commands, but emits error for unregistered
       // nonempty commands.
-      case 'executeCommandLine': {
+      case 'submitLine': {
+        const { line } = intent;
+        
+        if (line.startsWith('!')) {
+          return {
+            effectType: 'userCode',
+            code: line.slice(1),
+          };
+        }
+        
         return (
-          parseExCommand(intent.commandLine, userExCommands) ?? {
+          parseExCommand(line, new Set()) ?? {
             effectType: 'setInputState',
             inputState: {
               inputMode: 'normal',

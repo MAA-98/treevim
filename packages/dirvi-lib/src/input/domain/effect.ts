@@ -51,6 +51,10 @@ export type Effect<Id, Value> =
       effectType: 'userNormalCommand';
       command: string;
     }
+  | {
+      effectType: 'userCode'
+      code: string
+    }
   | Readonly<{
       effectType: 'userExCommand';
       command: string;

@@ -12,8 +12,8 @@ function normalInputState(normalBuffer = ''): InputModeState {
 
 function commandInputState(commandLine = ':'): InputModeState {
   return {
-    inputMode: 'command',
-    commandLine,
+    inputMode: 'lineInput',
+    line: commandLine,
   };
 }
 

@@ -1,7 +1,7 @@
-import { ConfigPatch } from './config.js';
-import { TreevimApi } from './treevim-api.js';
-import { HighlightResolver } from './highlight-resolver/highlight-resolver.js';
-import { AsyncCreateAppDefinitionApplicator } from '../app/index.js';
+import type { TreevimApi, ConfigPatch } from './treevim-api/index.js';
+import type { HighlightResolver } from './highlight-resolver/highlight-resolver.js';
+import type { AsyncCreateAppDefinitionApplicator } from '../app/index.js';
+import type { ToolDefinition } from './tool-definition.js';
 
 // An `InitRuntime` provides this API while the script runs. It describes
 // the intended API for TypeScript consumers and provides editor guidance and
@@ -54,20 +54,14 @@ export type PublicInitApi = {
         execute: (api: TreevimApi) => void | Promise<void>;
       }[];
       /**
-       * Ex commands invoked as `:${command}` while this app is active.
+       * Tools available in JS mode while this app is active.
        *
-       * Each closure receives the live TreevimApi and the unparsed argument text
-       * when invoked, not while init.mjs is being evaluated. Registered commands
-       * take precedence over built-ins and receive their arguments as a raw
-       * string, with the beginning space ignored.
+       * Each tool receives validated input and the live TreevimApi when invoked.
        *
-       * `rawArgs` is undefined if no additional arguments were given to the
-       * command.
+       * Tool names must be unique within this app. The runtime rejects invalid
+       * registrations and invalid inputs.
        */
-      ex?: readonly {
-        command: string;
-        execute: (api: TreevimApi, rawArgs?: string) => void | Promise<void>;
-      }[];
+      tools?: readonly ToolDefinition<any>[];
       /**
        * App-specific highlight resolver for content and UI tokens.
        */

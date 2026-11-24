@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import type { FeedbackType, HighlightResolver, ShellApi } from 'dirvi-apis';
+import type { FeedbackType, HighlightResolver, ShellApi, ToolDefinition } from 'dirvi-apis';
 import type { AppMethods, State } from 'dirvi-lib';
 import { createTreeMethods } from 'dirvi-lib';
 import {
@@ -12,7 +12,7 @@ import {
 import type { LoadingScreenRenderer } from './loading-screen-renderer.js';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { Initialization } from '../domain/initialization.js';
-import type { ExCommand, NormalCommand } from '../domain/command.js';
+import type { NormalCommand } from '../domain/command.js';
 import { App } from './App.js';
 import { defaultConfig } from '../domain/config.js';
 import { defaultUiHighlightResolver } from '../domain/theme.js';
@@ -20,7 +20,7 @@ import { resolveWithFallback } from '../application/highlight-resolver.js';
 
 // TODO Later: configuration watched for changes
 
-const emptyExCommands: ReadonlyMap<string, ExCommand> = new Map();
+const emptyTools: ReadonlyMap<string, ToolDefinition<any>> = new Map();
 const emptyNormalCommands: ReadonlyMap<string, NormalCommand> = new Map();
 const emptyHighlightResolver: HighlightResolver = (_string) => undefined;
 
@@ -122,9 +122,9 @@ export function AppSetup<Id, Value>({
     () => initialization.normalCommands.get(appId) ?? emptyNormalCommands,
     [initialization.normalCommands, appId],
   );
-  const exCommands = useMemo(
-    () => initialization.exCommands.get(appId) ?? emptyExCommands,
-    [initialization.exCommands, appId],
+  const tools = useMemo(
+    () => initialization.tools.get(appId) ?? emptyTools,
+    [initialization.tools, appId],
   );
 
   const highlightResolver = useMemo(() => {
@@ -145,10 +145,9 @@ export function AppSetup<Id, Value>({
     () =>
       createIntentToEffect(
         new Set(normalCommands.keys()),
-        new Set(exCommands.keys()),
         appMethods.stateMethods,
       ),
-    [appMethods.stateMethods, exCommands, normalCommands],
+    [appMethods.stateMethods, normalCommands],
   );
 
   const effectToAction = useMemo(
@@ -176,7 +175,7 @@ export function AppSetup<Id, Value>({
       screenRenderer={appScreenRenderer}
       shellApi={shellApi}
       appMethods={appMethods}
-      exCommands={exCommands}
+      tools={tools}
       normalCommands={normalCommands}
       highlightResolver={highlightResolver}
       config={config}

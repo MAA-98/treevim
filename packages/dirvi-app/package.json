@@ -20,7 +20,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format": "prettier . --write"
   },
+  "engines": {
+    "node": ">=22.19.0"
+  },
   "dependencies": {
+    "@earendil-works/pi-codemode": "^1.6.0",
     "dirvi-apis": "workspace:*",
     "dirvi-lib": "workspace:*",
     "zod": "^4.4.3"

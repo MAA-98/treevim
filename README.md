@@ -33,7 +33,7 @@ npm install -g @mak-98/treevim@latest
 
 Requirements:
 
-- Node.js 22 or later
+- Node.js 22.19.0 or later
 - npm
 
 ## Usage

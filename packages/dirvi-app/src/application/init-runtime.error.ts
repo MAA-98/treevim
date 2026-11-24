@@ -3,8 +3,7 @@ export type InitRuntimeErrorCode =
   | 'ALREADY_FINISHED'
   | 'INVALID_VALUE'
   | 'DUPLICATE_APP'
-  | 'DUPLICATE_EX_COMMAND'
-  | 'INVALID_EX_COMMAND_HANDLER'
+  | 'DUPLICATE_TOOL'
   | 'INVALID_CONFIG'
   | 'INVALID_APP_PACKAGE_REFERENCE'
   | 'NO_APPS_REGISTERED'
@@ -55,22 +54,12 @@ export class DuplicateAppRegistrationError extends InitRuntimeError {
   }
 }
 
-/** An Ex command name was registered more than once. */
-export class DuplicateExCommandRegistrationError extends InitRuntimeError {
+/** A tool name was registered more than once. */
+export class DuplicateToolRegistrationError extends InitRuntimeError {
   constructor(name: string) {
     super(
-      'DUPLICATE_EX_COMMAND',
-      `An Ex command named "${name}" was registered multiple times.`,
-    );
-  }
-}
-
-/** An Ex command registration supplied a value that is not a handler function. */
-export class InvalidExCommandHandlerError extends InitRuntimeError {
-  constructor() {
-    super(
-      'INVALID_EX_COMMAND_HANDLER',
-      'Ex command handler must be a function.',
+      'DUPLICATE_TOOL',
+      `A tool named "${name}" was registered multiple times.`,
     );
   }
 }

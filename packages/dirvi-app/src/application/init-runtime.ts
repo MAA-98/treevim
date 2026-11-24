@@ -1,29 +1,32 @@
+import { z } from 'zod';
 import type {
   PublicInitApi,
   HighlightResolver,
   AsyncCreateAppDefinitionApplicator,
   Config,
+  ToolDefinition,
 } from 'dirvi-apis';
 
 import type { Initialization } from '../domain/initialization.js';
 import { ConfigSchema, defaultConfig, merge } from '../domain/config.js';
 import type { ExCommand, NormalCommand } from '../domain/command.js';
 import {
-  DuplicateAppRegistrationError,
-  DuplicateExCommandRegistrationError,
+  DuplicateAppRegistrationError, DuplicateToolRegistrationError,
+  InitialAppNotRegisteredError,
   InitializationAlreadyFinishedError,
   InitRuntimeInvariantError,
-  InvalidExCommandHandlerError,
   InvalidInitializationConfigError,
   InvalidInitializationValueError,
+  NoAppsRegisteredError,
 } from './init-runtime.error.js';
 
 /**
  * A session for collecting and resolving initialization-script registrations.
  *
- * Expose `api` while evaluating `init.mjs`, then call `finish()` after module
- * evaluation completes. Finishing validates the collected state and returns an
- * immutable-by-contract snapshot of the resolved initialization.
+ * Expose `api` while evaluating `init.mjs` as global `treevim`, then call
+ * `finish()` after module evaluation completes. Finishing validates the
+ * collected state and returns an immutable-by-contract snapshot of the resolved
+ * initialization.
  */
 export type InitRuntime = {
   /** The temporary API made available to `init.mjs` during evaluation. */
@@ -61,7 +64,7 @@ export function createInitRuntime(): InitRuntime {
   const registeredApps = new Map<string, AsyncCreateAppDefinitionApplicator>();
   const appConfigs = new Map<string, Config>();
   const normalCommands = new Map<string, Map<string, NormalCommand>>();
-  const exCommands = new Map<string, Map<string, ExCommand>>();
+  const tools = new Map<string, Map<string, ToolDefinition<any>>>();
   const highlightResolvers = new Map<string, HighlightResolver>();
   let finished = false;
 
@@ -104,7 +107,7 @@ export function createInitRuntime(): InitRuntime {
           create,
           config,
           normal,
-          ex,
+          tools: appTools,
           highlightResolver,
         } = app;
 
@@ -188,42 +191,64 @@ export function createInitRuntime(): InitRuntime {
           appNormalCommands.set(command, { execute });
         }
 
-        // Ex command registration
-        if (ex !== undefined && !Array.isArray(ex)) {
+        // Tool registration
+        if (appTools !== undefined && !Array.isArray(appTools)) {
           throw new InvalidInitializationValueError(
-            'Ex commands',
+            'Tools',
             'must be an array',
           );
         }
 
-        const appExCommands = new Map<string, ExCommand>();
+        const registeredTools = new Map<string, ToolDefinition<any>>();
 
-        for (const exCommand of ex ?? []) {
+        for (const tool of appTools ?? []) {
           if (
-            typeof exCommand !== 'object' ||
-            exCommand === null ||
-            Array.isArray(exCommand)
+            typeof tool !== 'object' ||
+            tool === null ||
+            Array.isArray(tool)
           ) {
             throw new InvalidInitializationValueError(
-              'Ex command',
+              'Tool',
               'must be an object',
             );
           }
 
-          const { command, execute } = exCommand;
-          validateNonEmptyString(command, 'Ex command name');
+          const { name, label, description, parameters, createExecute } = tool;
 
-          if (typeof execute !== 'function') {
-            throw new InvalidExCommandHandlerError();
+          validateNonEmptyString(name, 'Tool name');
+          validateNonEmptyString(label, 'Tool label');
+          validateNonEmptyString(description, 'Tool description');
+
+          if (registeredTools.has(name)) {
+            throw new DuplicateToolRegistrationError(name);
           }
 
-          if (appExCommands.has(command)) {
-            throw new DuplicateExCommandRegistrationError(command);
+          if (!(parameters instanceof z.ZodObject)) {
+            throw new InvalidInitializationValueError(
+              'Tool parameters',
+              'must be a Zod object schema',
+            );
           }
 
-          appExCommands.set(command, { execute });
+          if (typeof createExecute !== 'function') {
+            throw new InvalidInitializationValueError(
+              'Tool createExecute',
+              'must be a function',
+            );
+          }
+
+          // Copy registration fields so later mutation of the original tool
+          // object does not change the registration.
+          registeredTools.set(name, {
+            name,
+            label,
+            description,
+            parameters,
+            createExecute,
+          });
         }
-
+        
+        // Highlight resolver registration
         if (
           highlightResolver !== undefined &&
           typeof highlightResolver !== 'function'
@@ -237,7 +262,7 @@ export function createInitRuntime(): InitRuntime {
         appConfigs.set(appId, appConfig);
         registeredApps.set(appId, create);
         normalCommands.set(appId, appNormalCommands);
-        exCommands.set(appId, appExCommands);
+        tools.set(appId, registeredTools);
         if (highlightResolver !== undefined) {
           highlightResolvers.set(appId, highlightResolver);
         }
@@ -264,19 +289,14 @@ export function createInitRuntime(): InitRuntime {
     ensureUnfinished();
 
     if (registeredApps.size === 0) {
-      throw new Error(
-        'Initialization did not register any apps. Call ' +
-          'dirvi.app.register({ id, create }) at least once in init.mjs.',
-      );
+      throw new NoAppsRegisteredError();
     }
 
     let initial: string;
 
     if (initialAppId !== undefined) {
       if (!registeredApps.has(initialAppId)) {
-        throw new Error(
-          `Startup app "${initialAppId}" has not been registered.`,
-        );
+        throw new InitialAppNotRegisteredError(initialAppId);
       }
 
       initial = initialAppId;
@@ -298,8 +318,11 @@ export function createInitRuntime(): InitRuntime {
           new Map(commands),
         ]),
       ),
-      exCommands: new Map(
-        [...exCommands].map(([appId, commands]) => [appId, new Map(commands)]),
+      tools: new Map(
+        [...tools].map(([appId, appTools]) => [
+          appId,
+          new Map(appTools),
+        ]),
       ),
       highlightResolvers: new Map(highlightResolvers),
     };

@@ -1,4 +1,4 @@
-import type { AppInput } from './app-input.js';
+import type { AppInput } from '../app-input.js';
 import type { BufferEncoding } from './buffer-encoding.js';
 
 export type OpenAppResult =

@@ -20,16 +20,17 @@ export type NormalModeIntent =
 
 export type CommandLineIntent =
   | {
-      intentType: 'enterCommandLineMode';
+      intentType: 'enterLineMode';
+      type: 'ex' | 'code' | 'search' | 'shell';
     }
   | {
-      intentType: 'setCommandLine';
-      commandLine: string;
+      intentType: 'setLine';
+      line: string;
     }
   | {
-      intentType: 'executeCommandLine';
-      commandLine: string;
+      intentType: 'submitLine';
+      line: string;
     }
   | {
-      intentType: 'exitCommandLineMode';
+      intentType: 'exitLineMode';
     };

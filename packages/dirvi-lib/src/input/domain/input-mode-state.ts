@@ -4,6 +4,6 @@ export type InputModeState =
       normalBuffer: string;
     }
   | {
-      inputMode: 'command';
-      commandLine: string;
+      inputMode: 'lineInput';
+      line: string;
     };

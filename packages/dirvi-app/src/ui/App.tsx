@@ -1,3 +1,4 @@
+import { inspect } from 'node:util';
 import {
   useCallback,
   useEffect,
@@ -12,7 +13,7 @@ import type {
   Config,
   FeedbackType,
   HighlightResolver,
-  ShellApi,
+  ShellApi, ToolDefinition,
 } from 'dirvi-apis';
 import type {
   AppMethods,
@@ -30,15 +31,16 @@ import { createFeedbackApi, userInputToIntent } from 'dirvi-lib';
 
 import { useView } from './hooks/useView.js';
 import type { AppScreenRenderer } from './app-screen-renderer.js';
-import type { ExCommand, NormalCommand } from '../domain/command.js';
+import type { NormalCommand } from '../domain/command.js';
 import { createResync } from '../application/create-resync.js';
+import { createExecuteCode } from '../infrastructure/create-execute-code.js';
 
 type AppProps<Id, Value> = {
   screenRenderer: AppScreenRenderer;
   shellApi: ShellApi;
   appMethods: AppMethods<Id, Value>;
   normalCommands: ReadonlyMap<string, NormalCommand>;
-  exCommands: ReadonlyMap<string, ExCommand>;
+  tools: ReadonlyMap<string, ToolDefinition<any>>;
   config: Readonly<Config>;
   highlightResolver: HighlightResolver;
   initialState: State<Id, Value>;
@@ -58,7 +60,7 @@ export function App<Id, Value>({
   shellApi,
   appMethods,
   normalCommands,
-  exCommands,
+  tools,
   config,
   highlightResolver,
   initialState,
@@ -196,6 +198,24 @@ export function App<Id, Value>({
   );
 
   // ===========================================================================
+  // Code Execution
+  // ===========================================================================
+  
+  const executeCode = useMemo(
+    () => createExecuteCode(tools, { shell: shellApi, app: appApi }),
+    [tools, shellApi, appApi],
+  );
+
+  const codeExecution = useRef<AbortController | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      codeExecution.current?.abort();
+      codeExecution.current = undefined;
+    };
+  }, [executeCode]);
+
+  // ===========================================================================
   // Executing Effects
   // ===========================================================================
   const executeEffect = useCallback(
@@ -224,7 +244,7 @@ export function App<Id, Value>({
                 error instanceof Error ? error : new Error(String(error));
 
               appApi.addMessage(
-                `Ex command "${effect.command}" failed: ${appError.message}`,
+                `Normal command "${effect.command}" failed: ${appError.message}`,
                 'error',
               );
             });
@@ -233,29 +253,89 @@ export function App<Id, Value>({
         }
 
         case 'userExCommand': {
-          setInputState(clearInputState);
-          const command = exCommands.get(effect.command);
+          // setInputState(clearInputState);
+          // const command = exCommands.get(effect.command);
+          //
+          // if (command === undefined) {
+          //   appApi.addMessage(
+          //     `Ex command is no longer registered: ${effect.command}`,
+          //     'error',
+          //   );
+          //   return;
+          // }
+          //
+          // void Promise.resolve()
+          //   .then(() =>
+          //     command.execute({ shell: shellApi, app: appApi }, effect.rawArgs),
+          //   )
+          //   .catch((error: unknown) => {
+          //     const appError =
+          //       error instanceof Error ? error : new Error(String(error));
+          //
+          //     appApi.addMessage(
+          //       `Ex command "${effect.command}" failed: ${appError.message}`,
+          //       'error',
+          //     );
+          //   });
 
-          if (command === undefined) {
+          return;
+        }
+
+        case 'userCode': {
+          setInputState(clearInputState);
+
+          if (codeExecution.current !== undefined) {
             appApi.addMessage(
-              `Ex command is no longer registered: ${effect.command}`,
+              'Code execution is already in progress.',
               'error',
             );
             return;
           }
 
-          void Promise.resolve()
-            .then(() =>
-              command.execute({ shell: shellApi, app: appApi }, effect.rawArgs),
-            )
-            .catch((error: unknown) => {
-              const appError =
-                error instanceof Error ? error : new Error(String(error));
+          const controller = new AbortController();
+          codeExecution.current = controller;
 
-              appApi.addMessage(
-                `Ex command "${effect.command}" failed: ${appError.message}`,
-                'error',
+          void executeCode(effect.code, { signal: controller.signal })
+            .then((result) => {
+              // Ignore results from an execution canceled during cleanup.
+              if (controller.signal.aborted) {
+                return;
+              }
+
+              const lines = result.messages.map((message) =>
+                message.type === 'text'
+                  ? message.text
+                  : `[Image: ${message.mimeType}]`,
               );
+
+              if (result.kind === 'failure') {
+                lines.push(
+                  `Code ${result.error.kind}: ${result.error.message}`,
+                );
+                appApi.addMessage(lines.join('\n'), 'error');
+                return;
+              }
+
+              if (result.value !== undefined) {
+                lines.push(inspect(result.value));
+              }
+
+              if (lines.length > 0) {
+                appApi.addMessage(lines.join('\n'));
+              }
+            })
+            .catch((error: unknown) => {
+              // Defensive: ExecuteCode normally returns failures as values.
+              if (!controller.signal.aborted) {
+                const message =
+                  error instanceof Error ? error.message : String(error);
+                appApi.addMessage(`Code execution failed: ${message}`, 'error');
+              }
+            })
+            .finally(() => {
+              if (codeExecution.current === controller) {
+                codeExecution.current = undefined;
+              }
             });
 
           return;
@@ -369,17 +449,7 @@ export function App<Id, Value>({
           return;
       }
     },
-    [
-      appMethods,
-      effectToAction,
-      navEntry,
-      state,
-      shellApi,
-      appApi,
-      clearInputState,
-      normalCommands,
-      exCommands,
-    ],
+    [appMethods, effectToAction, navEntry, state, shellApi, appApi, clearInputState, normalCommands, executeCode],
   );
 
   // ===========================================================================

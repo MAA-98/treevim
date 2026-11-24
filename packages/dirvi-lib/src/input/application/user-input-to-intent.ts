@@ -18,8 +18,8 @@ export function userInputToIntent(
     case 'normal':
       return normalUserInputToIntent(userInput, inputModeState.normalBuffer);
 
-    case 'command':
-      return commandUserInputToIntent(userInput, inputModeState.commandLine);
+    case 'lineInput':
+      return commandUserInputToIntent(userInput, inputModeState.line);
   }
 }
 
@@ -37,10 +37,20 @@ function normalUserInputToIntent(
 
   switch (userInput.userInputType) {
     case 'character':
-      if (normalBuffer === '' && userInput.string === ':') {
-        return {
-          intentType: 'enterCommandLineMode',
-        };
+      if (normalBuffer === '') {
+        if (userInput.string === ':')  {
+          return {
+            intentType: 'enterLineMode',
+            type: 'ex',
+          };
+        }
+
+        if (userInput.string === '!') {
+          return {
+            intentType: 'enterLineMode',
+            type: 'code',
+          };
+        }
       }
 
       return {
@@ -76,33 +86,33 @@ function commandUserInputToIntent(
 ): Intent | undefined {
   if (userInput.userInputType === 'esc') {
     return {
-      intentType: 'exitCommandLineMode',
+      intentType: 'exitLineMode',
     };
   }
 
   if (userInput.userInputType === 'enter') {
     return {
-      intentType: 'executeCommandLine',
-      commandLine: commandLine,
+      intentType: 'submitLine',
+      line: commandLine,
     };
   }
 
   if (userInput.userInputType === 'backspace') {
     if (commandLine.length < 2) {
       return {
-        intentType: 'exitCommandLineMode',
+        intentType: 'exitLineMode',
       };
     }
     return {
-      intentType: 'setCommandLine',
-      commandLine: commandLine.slice(0, -1),
+      intentType: 'setLine',
+      line: commandLine.slice(0, -1),
     };
   }
 
   if (userInput.userInputType === 'character') {
     return {
-      intentType: 'setCommandLine',
-      commandLine: commandLine + userInput.string,
+      intentType: 'setLine',
+      line: commandLine + userInput.string,
     };
   }
 }

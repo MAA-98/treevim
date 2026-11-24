@@ -86,7 +86,7 @@ export const InkAppScreen: AppScreenRenderer = ({
   const feedbackBackground = feedbackHighlight?.bg;
 
   const statusBarToken: UiHighlightToken =
-    inputState.inputMode === 'command'
+    inputState.inputMode === 'lineInput'
       ? 'ui.status-bar.command'
       : 'ui.status-bar.normal';
 
