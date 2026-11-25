@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ComponentProps } from 'react';
 import { useApp } from 'ink';
 
+import type { ShellProps } from '@mak-98/dirvi-app';
 import { Shell } from '@mak-98/dirvi-app';
 
-type InkShellProps = Omit<ComponentProps<typeof Shell>, 'onQuit'>;
+type InkShellProps = Omit<ShellProps, 'onQuit'>;
 
 /**
  * Marshalls methods for controlling dirvi at the shell-level that are specific

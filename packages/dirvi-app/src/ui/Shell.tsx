@@ -11,6 +11,7 @@ import type {
   InitializationResult,
 } from '../domain/initialization.js';
 import { createAppMethodsApplicator } from '../application/create-app-methods.js';
+import type { ToolBridge } from '../application/create-tool-bridge.js';
 
 export type InitialAppOptions = Readonly<{
   /**
@@ -33,7 +34,7 @@ export type InitialAppOptions = Readonly<{
  * The API loader functions are injected so the shell does not depend directly
  * on a platform-specific infrastructure implementation.
  */
-export type ShellAppProps = {
+export type ShellProps = {
   /**
    * Host-specific React implementation.
    */
@@ -45,6 +46,7 @@ export type ShellAppProps = {
 
   /** Request to exit dirvi with an optional message. */
   readonly onQuit: (message?: string) => void;
+  readonly toolBridge: ToolBridge;
   /** Stdout write handle. */
   readonly stdout?: (
     str: Uint8Array | string,
@@ -64,9 +66,10 @@ export function Shell({
   initialAppOptions,
   initResult,
   onQuit,
+  toolBridge,
   stdout,
   clipboard,
-}: ShellAppProps) {
+}: ShellProps) {
   const [loadedApp, setLoadedApp] = useState<{
     appId: string;
     appMethodsApplicator: AppMethodsApplicator;
@@ -183,6 +186,7 @@ export function Shell({
       onInitialMessageShown={onInitialMessageShown}
       // @ts-ignore
       appMethods={appMethods}
+      toolBridge={toolBridge}
       {...(clipboard === undefined ? {} : { clipboard })}
     />
   ));

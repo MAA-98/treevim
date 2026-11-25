@@ -1,10 +1,5 @@
-import type { JsonValue, ToolDefinition, TreevimApi } from 'dirvi-apis';
-
-export type ToolInvoker = (
-  name: string,
-  input: unknown,
-  signal?: AbortSignal,
-) => Promise<JsonValue>;
+import type { ToolDefinition, TreevimApi } from 'dirvi-apis';
+import type { ToolInvoker } from '../domain/tool-invoker.js';
 
 /**
  * Creates an executor bound to an app's tools and live Treevim API.

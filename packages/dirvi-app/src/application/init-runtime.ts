@@ -9,7 +9,7 @@ import type {
 
 import type { Initialization } from '../domain/initialization.js';
 import { ConfigSchema, defaultConfig, merge } from '../domain/config.js';
-import type { ExCommand, NormalCommand } from '../domain/command.js';
+import type { NormalCommand } from '../domain/command.js';
 import {
   DuplicateAppRegistrationError, DuplicateToolRegistrationError,
   InitialAppNotRegisteredError,

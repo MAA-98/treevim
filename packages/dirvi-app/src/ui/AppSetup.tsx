@@ -18,6 +18,7 @@ import { defaultConfig } from '../domain/config.js';
 import { defaultUiHighlightResolver } from '../domain/theme.js';
 import { resolveWithFallback } from '../application/highlight-resolver.js';
 import { foldListTool } from '../application/builtin-tools/fold-list.js';
+import { ToolBridge } from '../application/create-tool-bridge.js';
 
 // TODO Later: configuration watched for changes
 
@@ -34,6 +35,7 @@ type AppSetupProps<Id, Value> = {
   onInitialMessageShown: () => void;
   shellApi: ShellApi;
   appMethods: AppMethods<Id, Value>;
+  toolBridge: ToolBridge;
   clipboard?: (value: string) => void;
 };
 
@@ -62,6 +64,7 @@ export function AppSetup<Id, Value>({
   onInitialMessageShown,
   shellApi,
   appMethods,
+  toolBridge,
   clipboard,
 }: AppSetupProps<Id, Value>) {
   const [loadState, setLoadState] = useState<LoadState<Id, Value>>();
@@ -197,6 +200,7 @@ export function AppSetup<Id, Value>({
       reducer={reducer}
       intentToEffect={intentToEffect}
       effectToAction={effectToAction}
+      toolBridge={toolBridge}
       {...(clipboard === undefined ? {} : { clipboard })}
     />
   );

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { Command } from 'commander';
 import { render } from 'ink';
 
-import type { InitialAppOptions } from '@mak-98/dirvi-app';
+import { createToolBridge, type InitialAppOptions } from '@mak-98/dirvi-app';
 
 import { createInitialization } from './infrastructure/create-initialization.js';
 import { getXdgConfigHome } from './infrastructure/get-xdg-paths.js';
@@ -11,6 +11,7 @@ import { createClipboard } from './infrastructure/create-clipboard.js';
 import { InkAppScreen } from './ui/InkAppScreen.js';
 import { InkLoadingScreen } from './ui/InkLoadingScreen.js';
 import { InkShell } from './ui/InkShell.js';
+import { startToolSocket } from './infrastructure/start-tool-socket.js';
 
 const program = new Command();
 
@@ -60,7 +61,7 @@ const initPath = join(treevimConfigDirectory, 'init.mjs');
 program
   .name('treevim')
   .description('View and manage trees.')
-  .version('0.1.0-beta.9')
+  .version('0.1.0-beta.10')
   .helpOption('--help')
   .option('-a, --app <id>', 'App name to open at startup.')
   .option('-i, --input <value>', 'Input for the app at startup.')
@@ -76,14 +77,24 @@ program
     }
     const stdoutWrite = process.stdout.write.bind(process.stdout);
     const clipboard = createClipboard();
-
+    const toolBridge = createToolBridge();
+    let stopToolSocket: (() => Promise<void>) | undefined;
+    
     try {
+      if (process.env.TREEVIM_SOCKET !== undefined) {
+        stopToolSocket = await startToolSocket(
+          process.env.TREEVIM_SOCKET,
+          toolBridge,
+        );
+      }
+      
       const app = render(
         <InkShell
           loadingScreenRenderer={InkLoadingScreen}
           appScreenRenderer={InkAppScreen}
           initialAppOptions={initialAppOptions}
           initResult={initResult}
+          toolBridge={toolBridge}
           {...(stdoutIsInteractive ? {} : { stdout: stdoutWrite })}
           {...(clipboard === undefined ? {} : { clipboard })}
         />,
@@ -96,7 +107,11 @@ program
       // Errors thrown while leaving this await still execute the finally block.
       await app.waitUntilExit();
     } finally {
-      restoreTerminal(); // Always restore terminal regardless of error
+      try {
+        await stopToolSocket?.();
+      } finally {
+        restoreTerminal(); // Always restore terminal regardless of error
+      }
     }
   });
 
