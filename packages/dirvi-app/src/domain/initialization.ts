@@ -36,8 +36,8 @@ export type Initialization = {
   >;
 
   /**
-   * Ex commands registered by the initialization script, keyed by appId and
-   * then command name.
+   * Tools registered by the initialization script, keyed by `appId` and then
+   * tool name.
    */
   readonly tools: ReadonlyMap<string, ReadonlyMap<string, ToolDefinition<any>>>;
 

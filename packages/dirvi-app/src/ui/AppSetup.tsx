@@ -17,6 +17,7 @@ import { App } from './App.js';
 import { defaultConfig } from '../domain/config.js';
 import { defaultUiHighlightResolver } from '../domain/theme.js';
 import { resolveWithFallback } from '../application/highlight-resolver.js';
+import { foldListTool } from '../application/builtin-tools/fold-list.js';
 
 // TODO Later: configuration watched for changes
 
@@ -122,10 +123,20 @@ export function AppSetup<Id, Value>({
     () => initialization.normalCommands.get(appId) ?? emptyNormalCommands,
     [initialization.normalCommands, appId],
   );
-  const tools = useMemo(
-    () => initialization.tools.get(appId) ?? emptyTools,
-    [initialization.tools, appId],
-  );
+  const tools = useMemo(() => {
+    const appTools = initialization.tools.get(appId) ?? emptyTools;
+    const tools = new Map<string, ToolDefinition<any>>();
+
+    // Builtins:
+    tools.set(foldListTool.name, foldListTool);
+
+    // Custom tools override built-ins with the same name.
+    for (const [name, tool] of appTools) {
+      tools.set(name, tool);
+    }
+
+    return tools;
+  }, [initialization.tools, appId]);
 
   const highlightResolver = useMemo(() => {
     const appHighlightResolver =
@@ -146,8 +157,9 @@ export function AppSetup<Id, Value>({
       createIntentToEffect(
         new Set(normalCommands.keys()),
         appMethods.stateMethods,
+        tools
       ),
-    [appMethods.stateMethods, normalCommands],
+    [appMethods.stateMethods, normalCommands, tools],
   );
 
   const effectToAction = useMemo(

@@ -34,6 +34,7 @@ import type { AppScreenRenderer } from './app-screen-renderer.js';
 import type { NormalCommand } from '../domain/command.js';
 import { createResync } from '../application/create-resync.js';
 import { createExecuteCode } from '../infrastructure/create-execute-code.js';
+import { createToolInvoker } from '../application/create-tool-invoker.js';
 
 type AppProps<Id, Value> = {
   screenRenderer: AppScreenRenderer;
@@ -190,6 +191,18 @@ export function App<Id, Value>({
           ? []
           : appMethods.navMethods.visiblePaths(navigation.children);
       },
+      folds: {
+        list: () => {
+          const folds = appMethods.stateMethods.getFolds(stateRef.current);
+          const foldMethods = appMethods.stateMethods.foldMethods;
+
+          return [...foldMethods.indexes(folds)].map((index) => ({
+            index,
+            name: foldMethods.getInfoAtIndex(folds, index)?.name ?? null,
+            active: foldMethods.isActiveAtIndex(folds, index) === true,
+          }));
+        },
+      },
       addMessage: (message: string, type?: FeedbackType) => {
         feedbackApi.addMessage(message, type);
       },
@@ -205,15 +218,20 @@ export function App<Id, Value>({
     () => createExecuteCode(tools, { shell: shellApi, app: appApi }),
     [tools, shellApi, appApi],
   );
-
-  const codeExecution = useRef<AbortController | undefined>(undefined);
+  
+  const invokeTool = useMemo(
+    () => createToolInvoker(tools, { shell: shellApi, app: appApi }),
+    [tools, shellApi, appApi],
+  );
+  
+  const toolExecution = useRef<AbortController | undefined>(undefined);
 
   useEffect(() => {
     return () => {
-      codeExecution.current?.abort();
-      codeExecution.current = undefined;
+      toolExecution.current?.abort();
+      toolExecution.current = undefined;
     };
-  }, [executeCode]);
+  }, [executeCode, invokeTool]);
 
   // ===========================================================================
   // Executing Effects
@@ -251,32 +269,51 @@ export function App<Id, Value>({
 
           return;
         }
+        
+        case 'invokeTool': {
+          setInputState(clearInputState);
 
-        case 'userExCommand': {
-          // setInputState(clearInputState);
-          // const command = exCommands.get(effect.command);
-          //
-          // if (command === undefined) {
-          //   appApi.addMessage(
-          //     `Ex command is no longer registered: ${effect.command}`,
-          //     'error',
-          //   );
-          //   return;
-          // }
-          //
-          // void Promise.resolve()
-          //   .then(() =>
-          //     command.execute({ shell: shellApi, app: appApi }, effect.rawArgs),
-          //   )
-          //   .catch((error: unknown) => {
-          //     const appError =
-          //       error instanceof Error ? error : new Error(String(error));
-          //
-          //     appApi.addMessage(
-          //       `Ex command "${effect.command}" failed: ${appError.message}`,
-          //       'error',
-          //     );
-          //   });
+          if (toolExecution.current !== undefined) {
+            appApi.addMessage(
+              'A tool or code execution is already in progress.',
+              'error',
+            );
+            return;
+          }
+
+          const controller = new AbortController();
+          toolExecution.current = controller;
+
+          void invokeTool(effect.name, effect.input, controller.signal)
+            .then((value) => {
+              if (controller.signal.aborted) {
+                return;
+              }
+
+              appApi.addMessage(
+                value === null
+                  ? `Tool "${effect.name}" completed.`
+                  : inspect(value),
+              );
+            })
+            .catch((error: unknown) => {
+              if (controller.signal.aborted) {
+                return;
+              }
+
+              const message =
+                error instanceof Error ? error.message : String(error);
+
+              appApi.addMessage(
+                `Tool "${effect.name}" failed: ${message}`,
+                'error',
+              );
+            })
+            .finally(() => {
+              if (toolExecution.current === controller) {
+                toolExecution.current = undefined;
+              }
+            });
 
           return;
         }
@@ -284,16 +321,16 @@ export function App<Id, Value>({
         case 'userCode': {
           setInputState(clearInputState);
 
-          if (codeExecution.current !== undefined) {
+          if (toolExecution.current !== undefined) {
             appApi.addMessage(
-              'Code execution is already in progress.',
+              'A tool or code execution is already in progress.',
               'error',
             );
             return;
           }
 
           const controller = new AbortController();
-          codeExecution.current = controller;
+          toolExecution.current = controller;
 
           void executeCode(effect.code, { signal: controller.signal })
             .then((result) => {
@@ -333,8 +370,8 @@ export function App<Id, Value>({
               }
             })
             .finally(() => {
-              if (codeExecution.current === controller) {
-                codeExecution.current = undefined;
+              if (toolExecution.current === controller) {
+                toolExecution.current = undefined;
               }
             });
 
@@ -409,47 +446,13 @@ export function App<Id, Value>({
 
           return;
         }
-
-        case 'listFolds': {
-          const folds = appMethods.stateMethods.getFolds(state);
-
-          const foldTrees = [
-            ...appMethods.stateMethods.foldMethods.indexes(folds),
-          ].map((index) => ({
-            index,
-            info: appMethods.stateMethods.foldMethods.getInfoAtIndex(
-              folds,
-              index,
-            ),
-            active: appMethods.stateMethods.foldMethods.isActiveAtIndex(
-              folds,
-              index,
-            ),
-          }));
-
-          const indexWidth = Math.max(
-            ...foldTrees.map(({ index }) => String(index).length),
-          );
-
-          const lines = foldTrees.map(({ index, info, active }) => {
-            const status = active === true ? 'active' : 'inactive';
-            const name = info?.name ?? '<unavailable>';
-
-            return `${String(index).padStart(indexWidth)}  ${status.padEnd(8)}  ${name}`;
-          });
-
-          setInputState(clearInputState);
-          appApi.addMessage(['Fold trees:', ...lines].join('\n'));
-
-          return;
-        }
-
+        
         case 'emitError':
           appApi.addMessage(effect.message, 'error');
           return;
       }
     },
-    [appMethods, effectToAction, navEntry, state, shellApi, appApi, clearInputState, normalCommands, executeCode],
+    [appMethods, effectToAction, navEntry, state, shellApi, appApi, clearInputState, normalCommands, executeCode, invokeTool],
   );
 
   // ===========================================================================

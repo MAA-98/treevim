@@ -1,8 +1,10 @@
 import type { State, StateMethods } from '../../state-and-nav/index.js';
 import type { Effect, EffectAction, Intent } from '../domain/index.js';
 
+import { parseToolInvocation } from './parse-tool-invocation.js';
 import { parseExCommand } from './parse-ex-command.js';
 import { parseNormalCommand } from './parse-normal-command.js';
+import type { ToolDefinition } from 'dirvi-apis';
 
 /**
  * Converts a user intent and the current tree state into an effect.
@@ -21,6 +23,7 @@ export type IntentToEffect<Id, Value> = (
 export function createIntentToEffect<Id, Value>(
   customNormalCommands: ReadonlySet<string>,
   stateApi: StateMethods<Id, Value>,
+  tools: ReadonlyMap<string, ToolDefinition<any>>,
 ): IntentToEffect<Id, Value> {
   return (intent, state) => {
     switch (intent.intentType) {
@@ -86,15 +89,36 @@ export function createIntentToEffect<Id, Value>(
           };
         }
         
-        return (
-          parseExCommand(line, new Set()) ?? {
-            effectType: 'setInputState',
-            inputState: {
-              inputMode: 'normal',
-              normalBuffer: '',
-            },
+        const result = parseToolInvocation(line);
+
+        // Extract the candidate name using the same leading-colon rules as
+        // parseToolInvocation and parseExCommand.
+        const command = line.trimStart().replace(/^:+/, '').trimStart();
+        const commandName = /^\S+/.exec(command)?.[0];
+        
+        if (commandName !== undefined && tools.has(commandName)) {
+          switch (result.kind) {
+            case 'success':
+              return {
+                effectType: 'invokeTool',
+                name: result.invocation.name,
+                input: result.invocation.input,
+              };
+
+            case 'error':
+              return {
+                effectType: 'emitError',
+                message: `${result.message} at position ${result.position}`,
+              };
+
+            case 'empty':
+              // Defensive: a nonempty command name was found above.
+              return clearBuffer();
           }
-        );
+        }
+
+        // Not a registered tool: preserve the existing Ex behavior.
+        return parseExCommand(line);
       }
     }
   };

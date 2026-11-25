@@ -4,6 +4,7 @@ import {
 } from '@earendil-works/pi-codemode';
 
 import type { CreateExecuteCode } from '../application/create-execute-code.js';
+import { createToolInvoker } from '../application/create-tool-invoker.js';
 
 const timeoutMs = 10_000;
 const memoryLimitBytes = 64 * 1024 * 1024;
@@ -38,22 +39,12 @@ const memoryLimitBytes = 64 * 1024 * 1024;
  * @returns A function that executes code and returns its output or error.
  */
 export const createExecuteCode: CreateExecuteCode = (tools, api) => {
+  const toolInvoker = createToolInvoker(tools, api)
   const sandboxTools: CodemodeTool[] = [...tools.values()].map((tool) => ({
     name: tool.name,
     description: tool.description,
 
-    execute: async (input, { signal }) => {
-      signal.throwIfAborted();
-
-      const params = await tool.parameters.parseAsync(input);
-
-      // Validation may have taken time, so check again before starting
-      // a potentially side-effecting tool.
-      signal.throwIfAborted();
-
-      const execute = tool.createExecute(api);
-      return await execute(params);
-    },
+    execute: (input, { signal }) => toolInvoker(tool.name, input, signal),
   }));
 
   return async (code, options) => {

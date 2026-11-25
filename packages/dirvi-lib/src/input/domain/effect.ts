@@ -41,9 +41,6 @@ export type Effect<Id, Value> =
       name: string;
     }>
   | Readonly<{
-      effectType: 'listFolds';
-    }>
-  | Readonly<{
       effectType: 'setInputState';
       inputState: InputModeState;
     }>
@@ -56,9 +53,9 @@ export type Effect<Id, Value> =
       code: string
     }
   | Readonly<{
-      effectType: 'userExCommand';
-      command: string;
-      rawArgs: string | undefined;
+      effectType: 'invokeTool';
+      name: string;
+      input: Readonly<Record<string, string | number | boolean | null>>;
     }>
   | Readonly<{
       effectType: 'emitError';

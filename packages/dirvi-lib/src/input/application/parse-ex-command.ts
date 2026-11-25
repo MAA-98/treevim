@@ -13,13 +13,10 @@ const DEFAULT_FOLD_TREE_NAME = 'default';
  *
  * @param commandLine - The raw command line with the beginning filler, command
  * and options.
- * @param registeredCommands - Names of registered commands that override
- * built-ins.
  * @returns An effect, or `undefined` for an empty command.
  */
 export function parseExCommand<Id, Value>(
   commandLine: string,
-  registeredCommands: ReadonlySet<string>,
 ): Effect<Id, Value> | undefined {
   const command = commandLine.trimStart().replace(/^:+/, '').trimStart();
 
@@ -39,14 +36,6 @@ export function parseExCommand<Id, Value>(
   // Empty command
   if (commandName === undefined) {
     return undefined;
-  }
-
-  if (registeredCommands.has(commandName)) {
-    return {
-      effectType: 'userExCommand',
-      command: commandName,
-      rawArgs,
-    };
   }
 
   // Built-ins have whitespace-based argument parsing.
@@ -134,13 +123,6 @@ function parseFoldCommand<Id, Value>(
   } satisfies Effect<Id, Value>;
 
   switch (subcommand) {
-    case 'list':
-      return commandArgs.length === 1
-        ? {
-            effectType: 'listFolds',
-          }
-        : badArgs;
-
     case 'create':
       return name === undefined || commandArgs.length !== 2
         ? badArgs
