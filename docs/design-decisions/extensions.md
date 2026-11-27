@@ -190,3 +190,15 @@ integration later on.
 ```
 where the string after the first `!` is treated as pure JS, to run in a sandbox like
 in Pi's code mode.
+
+## Custom Commands 3
+
+The `jo` inspired syntax for tool-derived ex commands.
+
+```
+:fold.enable name=work
+:fold.enable name="work in progress"
+:search query=test limit=20 recursive=true
+:search options={"recursive":true,"limit":20}
+:select ids=["a","b"]
+```

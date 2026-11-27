@@ -7,7 +7,8 @@
 #
 # Usage:
 #   ./treevim-pi.zsh
-#   ./treevim-pi.zsh ./treevim-pi-extension.ts ./another-extension.ts
+#   ./treevim-pi.zsh ./another-extension.ts
+#   DEBUG=1 ./treevim-pi.zsh
 
 set -e
 
@@ -28,17 +29,26 @@ pi_bin=$(whence -p pi) || {
   exit 1
 }
 
-treevim_bin=$(whence -p treevim) || {
-  print -u2 "treevim executable not found."
-  exit 1
-}
+typeset -a treevim_command
 
-# With no arguments, load the Treevim extension from the working directory.
-# Each supplied argument is otherwise treated as a Pi extension file.
-if (( $# == 0 )); then
-  set -- ./treevim-pi-extension.ts
+if [[ ${DEBUG:-} == 1 ]]; then
+  pnpm_bin=$(whence -p pnpm) || {
+    print -u2 "pnpm executable not found."
+    exit 1
+  }
+
+  treevim_command=("$pnpm_bin" dev)
+else
+  treevim_bin=$(whence -p treevim) || {
+    print -u2 "treevim executable not found."
+    exit 1
+  }
+
+  treevim_command=("$treevim_bin")
 fi
 
+# Pi loads the installed Treevim package automatically.
+# Each supplied argument adds another extension file.
 typeset -a pi_args
 for extension in "$@"; do
   if [[ ! -f "$extension" ]]; then
@@ -79,7 +89,7 @@ treevim_pane=$(
     -F '#{pane_id}' \
     -t "$TMUX_PANE" \
     -c "$PWD" \
-    env "TREEVIM_SOCKET=$TREEVIM_SOCKET" "PATH=$PATH" "$treevim_bin"
+    env "TREEVIM_SOCKET=$TREEVIM_SOCKET" "PATH=$PATH" "${treevim_command[@]}"
 )
 
 # Wait for Treevim's socket to appear before starting Pi. The app itself may

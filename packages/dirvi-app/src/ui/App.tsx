@@ -35,7 +35,6 @@ import type { NormalCommand } from '../domain/command.js';
 import { createResync } from '../application/create-resync.js';
 import { createExecuteCode } from '../infrastructure/create-execute-code.js';
 import { createToolInvoker } from '../application/create-tool-invoker.js';
-import { ToolBridge } from '../application/create-tool-bridge.js';
 
 type AppProps<Id, Value> = {
   screenRenderer: AppScreenRenderer;
@@ -54,7 +53,6 @@ type AppProps<Id, Value> = {
   reducer: Reducer<Id, Value>;
   intentToEffect: IntentToEffect<Id, Value>;
   effectToAction: EffectToAction<Id, Value>;
-  toolBridge: ToolBridge;
   onError?: (error: Error) => void;
 };
 
@@ -72,7 +70,6 @@ export function App<Id, Value>({
   reducer,
   intentToEffect,
   effectToAction,
-  toolBridge,
   onError,
 }: AppProps<Id, Value>) {
   const ScreenRenderer = screenRenderer;
@@ -236,33 +233,33 @@ export function App<Id, Value>({
     };
   }, [executeCode, toolInvoker]);
   
-  useEffect(() => {
-    return toolBridge.register(async (name, input, signal) => {
-      signal?.throwIfAborted();
-
-      if (toolExecution.current !== undefined) {
-        throw new Error('A tool or code execution is already in progress.');
-      }
-
-      const controller = new AbortController();
-      toolExecution.current = controller;
-
-      const executionSignal =
-        signal === undefined
-          ? controller.signal
-          : AbortSignal.any([controller.signal, signal]);
-
-      try {
-        const value = await toolInvoker(name, input, executionSignal);
-        executionSignal.throwIfAborted();
-        return value;
-      } finally {
-        if (toolExecution.current === controller) {
-          toolExecution.current = undefined;
-        }
-      }
-    });
-  }, [toolBridge, toolInvoker]);
+  // useEffect(() => {
+  //   return toolBridge.register(async (name, input, signal) => {
+  //     signal?.throwIfAborted();
+  //
+  //     if (toolExecution.current !== undefined) {
+  //       throw new Error('A tool or code execution is already in progress.');
+  //     }
+  //
+  //     const controller = new AbortController();
+  //     toolExecution.current = controller;
+  //
+  //     const executionSignal =
+  //       signal === undefined
+  //         ? controller.signal
+  //         : AbortSignal.any([controller.signal, signal]);
+  //
+  //     try {
+  //       const value = await toolInvoker(name, input, executionSignal);
+  //       executionSignal.throwIfAborted();
+  //       return value;
+  //     } finally {
+  //       if (toolExecution.current === controller) {
+  //         toolExecution.current = undefined;
+  //       }
+  //     }
+  //   });
+  // }, [toolBridge, toolInvoker]);
 
   // ===========================================================================
   // Executing Effects

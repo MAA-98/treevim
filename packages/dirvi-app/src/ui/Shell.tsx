@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { FeedbackType, ShellApi } from 'dirvi-apis';
+import type { MessageTransport } from '@mak-98/treevim-ipc';
 import type { AppMethodsApplicator } from 'dirvi-lib';
 
 import type { AppScreenRenderer } from './app-screen-renderer.js';
@@ -11,7 +12,6 @@ import type {
   InitializationResult,
 } from '../domain/initialization.js';
 import { createAppMethodsApplicator } from '../application/create-app-methods.js';
-import type { ToolBridge } from '../application/create-tool-bridge.js';
 
 export type InitialAppOptions = Readonly<{
   /**
@@ -46,7 +46,7 @@ export type ShellProps = {
 
   /** Request to exit dirvi with an optional message. */
   readonly onQuit: (message?: string) => void;
-  readonly toolBridge: ToolBridge;
+  readonly messageTransport?: MessageTransport;
   /** Stdout write handle. */
   readonly stdout?: (
     str: Uint8Array | string,
@@ -66,7 +66,7 @@ export function Shell({
   initialAppOptions,
   initResult,
   onQuit,
-  toolBridge,
+  messageTransport,
   stdout,
   clipboard,
 }: ShellProps) {
@@ -186,7 +186,9 @@ export function Shell({
       onInitialMessageShown={onInitialMessageShown}
       // @ts-ignore
       appMethods={appMethods}
-      toolBridge={toolBridge}
+      {...(messageTransport === undefined
+        ? {}
+        : { messageTransport })}
       {...(clipboard === undefined ? {} : { clipboard })}
     />
   ));

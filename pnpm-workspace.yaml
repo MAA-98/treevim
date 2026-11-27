@@ -3,7 +3,9 @@ packages:
   - 'plugins/*'
 
 allowBuilds:
+  '@google/genai': false
   esbuild: true
+  protobufjs: false
 
 minimumReleaseAgeExclude:
   - treevim@0.1.0-beta.2 || 0.1.0-beta.3 || 0.1.0-beta.4

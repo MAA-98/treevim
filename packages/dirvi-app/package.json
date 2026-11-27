@@ -27,6 +27,7 @@
     "@earendil-works/pi-codemode": "^1.6.0",
     "dirvi-apis": "workspace:*",
     "dirvi-lib": "workspace:*",
+    "@mak-98/treevim-ipc": "workspace:*",
     "zod": "^4.4.3"
   },
   "peerDependencies": {

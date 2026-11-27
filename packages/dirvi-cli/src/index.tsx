@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import { Command } from 'commander';
 import { render } from 'ink';
 
-import { createToolBridge, type InitialAppOptions } from '@mak-98/dirvi-app';
+import type { InitialAppOptions } from '@mak-98/dirvi-app';
+import { createSocketTransport } from '@mak-98/treevim-ipc';
 
 import { createInitialization } from './infrastructure/create-initialization.js';
 import { getXdgConfigHome } from './infrastructure/get-xdg-paths.js';
@@ -11,7 +12,6 @@ import { createClipboard } from './infrastructure/create-clipboard.js';
 import { InkAppScreen } from './ui/InkAppScreen.js';
 import { InkLoadingScreen } from './ui/InkLoadingScreen.js';
 import { InkShell } from './ui/InkShell.js';
-import { startToolSocket } from './infrastructure/start-tool-socket.js';
 
 const program = new Command();
 
@@ -65,8 +65,13 @@ program
   .helpOption('--help')
   .option('-a, --app <id>', 'App name to open at startup.')
   .option('-i, --input <value>', 'Input for the app at startup.')
+  .option('--socket <socketName>', 'Enable IPC at this Unix socket.')
   .action(async () => {
-    const initialAppOptions = program.opts<InitialAppOptions>();
+    const options = program.opts<InitialAppOptions & { socket?: string }>();
+    const initialAppOptions: InitialAppOptions = {
+      ...(options.app === undefined ? {} : { app: options.app }),
+      ...(options.input === undefined ? {} : { input: options.input }),
+    };
     const initResult = await createInitialization(initPath);
 
     const useAlternateScreen = uiOutput.isTTY === true;
@@ -77,24 +82,30 @@ program
     }
     const stdoutWrite = process.stdout.write.bind(process.stdout);
     const clipboard = createClipboard();
-    const toolBridge = createToolBridge();
-    let stopToolSocket: (() => Promise<void>) | undefined;
     
+    let socketTransport:
+      | Awaited<ReturnType<typeof createSocketTransport>>
+      | undefined;
+
     try {
-      if (process.env.TREEVIM_SOCKET !== undefined) {
-        stopToolSocket = await startToolSocket(
-          process.env.TREEVIM_SOCKET,
-          toolBridge,
+      if (options.socket !== undefined) {
+        socketTransport = await createSocketTransport(
+          options.socket,
+          (_error) => {
+          },
+          { maxQueuedMessages: 256 },
         );
       }
-      
+
       const app = render(
         <InkShell
           loadingScreenRenderer={InkLoadingScreen}
           appScreenRenderer={InkAppScreen}
           initialAppOptions={initialAppOptions}
           initResult={initResult}
-          toolBridge={toolBridge}
+          {...(socketTransport === undefined
+            ? {}
+            : { messageTransport: socketTransport.transport })}
           {...(stdoutIsInteractive ? {} : { stdout: stdoutWrite })}
           {...(clipboard === undefined ? {} : { clipboard })}
         />,
@@ -108,9 +119,9 @@ program
       await app.waitUntilExit();
     } finally {
       try {
-        await stopToolSocket?.();
+        await socketTransport?.stop();
       } finally {
-        restoreTerminal(); // Always restore terminal regardless of error
+        restoreTerminal();
       }
     }
   });

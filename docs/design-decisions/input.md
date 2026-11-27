@@ -41,3 +41,5 @@ section of the UI, meaning it is not overlaying the tree but taking a portion of
 A new message clears previous one. We will add more functionality and configs later on.
 
 ### Navigation 2
+
+`{` and `}`.

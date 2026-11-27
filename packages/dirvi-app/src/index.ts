@@ -4,7 +4,6 @@ export type {
   ExecuteCode,
 } from './application/create-execute-code.js';
 export { createInitRuntime } from './application/init-runtime.js';
-export { createToolBridge, type ToolBridge } from './application/create-tool-bridge.js';
 
 export type {
   CodeExecutionResult,

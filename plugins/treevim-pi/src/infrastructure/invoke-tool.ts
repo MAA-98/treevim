@@ -1,18 +1,14 @@
 import { createConnection } from 'node:net';
 
-import { Type } from '@earendil-works/pi-ai';
-import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
-
 const maxResponseBytes = 1024 * 1024;
 const timeoutMs = 30_000;
 
-async function listFolds(signal?: AbortSignal): Promise<unknown> {
+export async function invokeTool(
+  socketName: string,
+  input: unknown,
+  signal?: AbortSignal,
+): Promise<unknown> {
   signal?.throwIfAborted();
-
-  const socketName = process.env.TREEVIM_SOCKET;
-  if (socketName === undefined) {
-    throw new Error('TREEVIM_SOCKET is not set.');
-  }
 
   return await new Promise((resolve, reject) => {
     const socket = createConnection(socketName);
@@ -31,7 +27,9 @@ async function listFolds(signal?: AbortSignal): Promise<unknown> {
     });
 
     socket.once('connect', () => {
-      socket.write(`${JSON.stringify({ method: 'fold.list' })}\n`);
+      socket.write(
+        `${JSON.stringify({ method: 'invokeTool', name, input })}\n`,
+      );
     });
 
     socket.on('data', (chunk: string) => {
@@ -88,23 +86,5 @@ async function listFolds(signal?: AbortSignal): Promise<unknown> {
         reject(new Error('Treevim connection closed without a response.'));
       }
     });
-  });
-}
-
-export default function (pi: ExtensionAPI) {
-  pi.registerTool({
-    name: 'treevim_fold_list',
-    label: 'List Treevim folds',
-    description: 'List the fold trees in the active Treevim app.',
-    parameters: Type.Object({}),
-
-    async execute(_toolCallId, _params, signal) {
-      const value = await listFolds(signal);
-
-      return {
-        content: [{ type: 'text', text: JSON.stringify(value) }],
-        details: {},
-      };
-    },
   });
 }
